@@ -1,0 +1,18 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/config.2.0.schema.json",
+  "version": "2.0",
+  "bundles": {
+    "h-rpersonal-dev-plan-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/hRpersonalDevPlan/HRpersonalDevPlanWebPart.js",
+          "manifest": "./src/webparts/hRpersonalDevPlan/HRpersonalDevPlanWebPart.manifest.json"
+        }
+      ]
+    }
+  },
+  "externals": {},
+  "localizedResources": {
+    "HRpersonalDevPlanWebPartStrings": "lib/webparts/hRpersonalDevPlan/loc/{locale}.js"
+  }
+}
