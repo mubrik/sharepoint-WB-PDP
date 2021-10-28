@@ -5,6 +5,11 @@ import {Stack} from "office-ui-fabric-react";
 // components
 import NavBar from "./nav/Navbar";
 import NewPage from "./form/NewPage";
+
+// rest request server pageContext
+export const RequestContext = React.createContext(null);
+
+// main component
 const MainPage:React.FunctionComponent<IHRpersonalDevPlanProps> = (props:IHRpersonalDevPlanProps) => {
 
   // page state
@@ -21,6 +26,7 @@ const MainPage:React.FunctionComponent<IHRpersonalDevPlanProps> = (props:IHRpers
 
   return (
     <Stack>
+    <RequestContext.Provider value={props.request}>
       <NavBar pageState={pageState} setPageState={setPageState}/>
       {
         pageState === "new" &&
@@ -32,6 +38,7 @@ const MainPage:React.FunctionComponent<IHRpersonalDevPlanProps> = (props:IHRpers
         {props.description}
         </div>
       }
+    </RequestContext.Provider>
     </Stack>
   );
 };

@@ -4,8 +4,11 @@ import {TextField,
    Stack, StackItem,
    Label, PrimaryButton
  } from "office-ui-fabric-react";
+ // contexts
+ import {RequestContext} from "../HRpersonalDevPlan";
 // components and types
-import {initialFormData, IBaseInputProps} from "./dataTypes";
+import {initialFormData, IBaseInputProps, IInputControlProps} from "./dataTypes";
+import {IServer} from "../../controller/serverTypes";
 
 // new page
 const NewPage:React.FunctionComponent = () => {
@@ -55,7 +58,11 @@ const NewPage:React.FunctionComponent = () => {
       }
     </Stack>
     <Stack>
-      <InputControl pageState={pageState} setPageState={setPageState}/>
+      <InputControl
+        pageState={pageState}
+        setPageState={setPageState}
+        data={formData}
+        _onChange={handleInputChange}/>
     </Stack>
     </>
   );
@@ -179,12 +186,15 @@ const StakeHoldersForm = ({data, _onChange}: IBaseInputProps): JSX.Element => {
   );
 };
 
-interface IInputControlProps {
-  pageState: number;
-  setPageState: React.Dispatch<React.SetStateAction<number>>;
-}
+// interface IInputControlProps {
+//   pageState: number;
+//   setPageState: React.Dispatch<React.SetStateAction<number>>;
+// }
 
 const InputControl:React.FunctionComponent<IInputControlProps> = (props:IInputControlProps) => {
+
+  // context
+  const makeRequest:IServer = React.useContext(RequestContext);
 
   // event handlers
   const handleNavigationClick = (name: string) => {
@@ -202,11 +212,19 @@ const InputControl:React.FunctionComponent<IInputControlProps> = (props:IInputCo
     }
   };
 
+  const handleFinishClick = () => {
+    makeRequest.getUserBioList()
+      .then(res => console.log(res))
+      .catch(err => console.log(err));
+
+    makeRequest.createEntry(props.data);
+  };
+
   return(
     <Stack horizontal horizontalAlign={"center"} tokens={{childrenGap: 7}}>
       <PrimaryButton text={"Prev"} disabled={props.pageState === 0} onClick={() => handleNavigationClick("prev")}/>
       <PrimaryButton text={"Next"} disabled={props.pageState === 2} onClick={() => handleNavigationClick("next")}/>
-      <PrimaryButton text={"Finish"}/>
+      <PrimaryButton text={"Finish"} onClick={handleFinishClick}/>
     </Stack>
   );
 };

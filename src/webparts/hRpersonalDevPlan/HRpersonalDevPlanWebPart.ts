@@ -10,6 +10,9 @@ import { BaseClientSideWebPart } from '@microsoft/sp-webpart-base';
 import * as strings from 'HRpersonalDevPlanWebPartStrings';
 import HRpersonalDevPlan from './components/HRpersonalDevPlan';
 import { IHRpersonalDevPlanProps } from './components/IHRpersonalDevPlanProps';
+// custom
+import requestServer from "./controller/server";
+import { sp } from "@pnp/sp/presets/core";
 
 export interface IHRpersonalDevPlanWebPartProps {
   description: string;
@@ -21,11 +24,27 @@ export default class HRpersonalDevPlanWebPart extends BaseClientSideWebPart<IHRp
     const element: React.ReactElement<IHRpersonalDevPlanProps> = React.createElement(
       HRpersonalDevPlan,
       {
-        description: this.properties.description
+        description: this.properties.description,
+        context: this.context,
+        request: new requestServer(this.context)
       }
     );
 
     ReactDom.render(element, this.domElement);
+  }
+
+  public async onInit(): Promise<void> {
+
+    return super.onInit().then(_ => {
+
+      // other init code may be present
+
+      sp.setup({
+        spfxContext: this.context
+      });
+
+      console.log("init");
+    });
   }
 
   protected onDispose(): void {

@@ -22,14 +22,3 @@ export const initialFormData = {
   "trainingDuration3": "",
   "trainingStatus3": "",
 };
-
-
-export interface IBaseInputProps {
-  data: typeof initialFormData;
-  _onChange: (name: string, event: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, newValue?: string) => void;
-}
-
-export interface IInputControlProps extends IBaseInputProps {
-  pageState: number;
-  setPageState: React.Dispatch<React.SetStateAction<number>>;
-}
