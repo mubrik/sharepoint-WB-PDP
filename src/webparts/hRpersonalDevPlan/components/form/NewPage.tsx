@@ -1,27 +1,39 @@
 import * as React from "react";
 // fabric ui
-import {TextField,
-   Stack, StackItem,
-   Label, PrimaryButton
+import {
+   Stack,
+   Label, PrimaryButton,
  } from "office-ui-fabric-react";
  // contexts
  import {RequestContext} from "../HRpersonalDevPlan";
 // components and types
-import {initialFormData, IBaseInputProps, IInputControlProps} from "./dataTypes";
+import BioDataForm from "./BioDataForm";
+import TrainingForm from "./TrainingForm";
+import YearGoalForm from "./YearGoalForm";
+import {IInputControlProps} from "./propTypes";
+import {IValidState} from "../dataTypes";
+import {initialBioFormData,
+  IFormYearData, initialValidObj,
+  IFormBioData, IFormTrainingData
+} from "../dataTypes";
 import {IServer} from "../../controller/serverTypes";
 
 // new page
-const NewPage:React.FunctionComponent = () => {
+const NewPage = (): JSX.Element => {
+
 
   // states
-  const [formData, setFormData] = React.useState(initialFormData);
+  const [bioData, setBioData] = React.useState<IFormBioData>(initialBioFormData);
+  const [yearData, setYearData] = React.useState<IFormYearData>({});
+  const [trainData, setTrainData] = React.useState<IFormTrainingData>({});
   const [pageState, setPageState] = React.useState(0);
+  const [validState, setValidState] = React.useState<IValidState>(initialValidObj);
 
   // handler
-  const handleInputChange = (name: string, _: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, newValue?: string, ) => {
+  const handleInputChange = (name: string, _: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, newValue?: string) => {
     console.log(name);
     // set data by name
-    setFormData(oldData => {
+    setBioData(oldData => {
       return {
         ...oldData,
         [name]: newValue
@@ -30,166 +42,55 @@ const NewPage:React.FunctionComponent = () => {
   };
 
   return (
-    <>
+    <Stack tokens={{childrenGap: 8}}>
     <Stack>
       <Label> Random stuff</Label>
     </Stack>
     <Stack>
       {
         pageState === 0 &&
-        <PersonalInfoForm
-          data={formData}
-          _onChange={handleInputChange}
+        <YearGoalForm
+          yearData={yearData}
+          setYearData={setYearData}
+          validState={validState.yearData}
+          setValidState={setValidState}
         />
       }
       {
         pageState === 1 &&
-        <StakeHoldersForm
-          data={formData}
+        <BioDataForm
+          bioData={bioData}
           _onChange={handleInputChange}
+          validState={validState.bioData}
+          setValidState={setValidState}
         />
       }
       {
         pageState === 2 &&
         <TrainingForm
-          data={formData}
-          _onChange={handleInputChange}
+          trainData={trainData}
+          setTrainData={setTrainData}
+          validState={validState.trainData}
+          setValidState={setValidState}
         />
       }
     </Stack>
     <Stack>
       <InputControl
+        bioData={bioData}
+        trainData={trainData}
+        yearData={yearData}
         pageState={pageState}
         setPageState={setPageState}
-        data={formData}
-        _onChange={handleInputChange}/>
+        validState={validState.state}
+        setValidState={setValidState}
+      />
     </Stack>
-    </>
-  );
-};
-
-const PersonalInfoForm = ({data, _onChange}: IBaseInputProps): JSX.Element => {
-
-  return(
-    <Stack>
-      <Stack>
-        <StackItem>
-          <Label>What are your dreams</Label>
-        </StackItem>
-        <StackItem>
-          <Label htmlFor={"year1"}>Year 1</Label>
-          <TextField id={"year1"} value={data.year1} onChange={(event, newValue) => _onChange("year1", event, newValue)}/>
-        </StackItem>
-        <StackItem>
-          <Label htmlFor={"year2"}>Year 2</Label>
-          <TextField id={"year2"} value={data.year2} onChange={(event, newValue) => _onChange("year2", event, newValue)}/>
-        </StackItem>
-        <StackItem>
-          <Label htmlFor={"year3"}>Year 3</Label>
-          <TextField id={"year3"} value={data.year3} onChange={(event, newValue) => _onChange("year3", event, newValue)}/>
-        </StackItem>
-      </Stack>
-      <Stack>
-        <StackItem>
-          <Label htmlFor={"strengthWeakness"}>Identify Your Strength and strengthWeakness</Label>
-          <TextField
-            multiline
-            id={"strengthWeakness"}
-            value={data.strengthWeakness}
-            onChange={(event, newValue) => _onChange("strengthWeakness", event, newValue)}
-          />
-        </StackItem>
-      </Stack>
     </Stack>
   );
 };
 
-const TrainingForm = ({data, _onChange}: IBaseInputProps): JSX.Element => {
 
-  return(
-    <Stack>
-      <StackItem>
-        <Label htmlFor={"trainingTitle1"}>Training 1</Label>
-        <TextField
-          id={"trainingTitle1"}
-          value={data.trainingTitle1}
-          onChange={(event, newValue) => _onChange("trainingTitle1", event, newValue)}
-          placeholder={"Training Name"}
-        />
-        <TextField
-          id={"trainingObjective1"}
-          value={data.trainingObjective1}
-          onChange={(event, newValue) => _onChange("trainingObjective1", event, newValue)}
-          placeholder={"Training Objective"}
-        />
-        <TextField
-          id={"trainingDuration1"}
-          value={data.trainingDuration1}
-          onChange={(event, newValue) => _onChange("trainingDuration1", event, newValue)}
-          placeholder={"Training Duration"}
-        />
-        <TextField
-          id={"trainingStatus1"}
-          value={data.trainingStatus1}
-          onChange={(event, newValue) => _onChange("trainingStatus1", event, newValue)}
-          placeholder={"Training Status"}
-        />
-      </StackItem>
-      <StackItem>
-        <Label htmlFor={"trainingTitle2"}>Training 2</Label>
-        <TextField
-          id={"trainingTitle2"}
-          value={data.trainingTitle2}
-          onChange={(event, newValue) => _onChange("trainingTitle2", event, newValue)}
-          placeholder={"Training Name"}
-          />
-        <TextField
-          id={"trainingObjective2"} value={data.trainingObjective2}
-          onChange={(event, newValue) => _onChange("trainingObjective2", event, newValue)}
-          placeholder={"Training Objective"}
-        />
-        <TextField id={"trainingDuration2"}
-          value={data.trainingDuration2}
-          onChange={(event, newValue) => _onChange("trainingDuration2", event, newValue)}
-          placeholder={"Training Duration"}
-          />
-        <TextField id={"trainingStatus2"} value={data.trainingStatus2} onChange={(event, newValue) => _onChange("trainingStatus2", event, newValue)}/>
-      </StackItem>
-      <StackItem>
-        <Label htmlFor={"trainingTitle3"}>Training 3</Label>
-        <TextField id={"trainingTitle3"} value={data.trainingTitle3} onChange={(event, newValue) => _onChange("trainingTitle3", event, newValue)}/>
-        <TextField id={"trainingObjective3"} value={data.trainingObjective3} onChange={(event, newValue) => _onChange("trainingObjective3", event, newValue)}/>
-        <TextField id={"trainingDuration3"} value={data.trainingDuration3} onChange={(event, newValue) => _onChange("trainingDuration3", event, newValue)}/>
-        <TextField id={"trainingStatus3"} value={data.trainingStatus3} onChange={(event, newValue) => _onChange("trainingStatus3", event, newValue)}/>
-      </StackItem>
-    </Stack>
-  );
-};
-
-const StakeHoldersForm = ({data, _onChange}: IBaseInputProps): JSX.Element => {
-
-  return(
-    <Stack>
-      <StackItem>
-        <Label htmlFor={"stakeHolder1"}>Identity of stake holders</Label>
-        <TextField id={"stakeHolder1"} multiline value={data.stakeHolder1} onChange={(event, newValue) => _onChange("stakeHolder1", event, newValue)}/>
-      </StackItem>
-      <StackItem>
-        <Label htmlFor={"stakeHolder2"}>Discuss with stake holders</Label>
-        <TextField id={"stakeHolder2"} multiline value={data.stakeHolder2} onChange={(event, newValue) => _onChange("stakeHolder2", event, newValue)}/>
-      </StackItem>
-      <StackItem>
-        <Label htmlFor={"stakeHolder3"}>Steps stepsTaken</Label>
-        <TextField id={"stakeHolder3"} multiline value={data.stakeHolder3} onChange={(event, newValue) => _onChange("stakeHolder3", event, newValue)}/>
-      </StackItem>
-    </Stack>
-  );
-};
-
-// interface IInputControlProps {
-//   pageState: number;
-//   setPageState: React.Dispatch<React.SetStateAction<number>>;
-// }
 
 const InputControl:React.FunctionComponent<IInputControlProps> = (props:IInputControlProps) => {
 
@@ -217,7 +118,7 @@ const InputControl:React.FunctionComponent<IInputControlProps> = (props:IInputCo
       .then(res => console.log(res))
       .catch(err => console.log(err));
 
-    makeRequest.createEntry(props.data);
+    makeRequest.createEntry(props.yearData, props.trainData, props.bioData as IFormBioData);
   };
 
   return(
@@ -228,5 +129,225 @@ const InputControl:React.FunctionComponent<IInputControlProps> = (props:IInputCo
     </Stack>
   );
 };
+
+// const PersonalInfoForm = ({yearData, setYearData, data, _onChange}: IYearControlProps): JSX.Element => {
+//
+//   // states
+//   const [itemsArray, setItemsArray] = React.useState<string[]>([]);
+//   // const [yearList, setYearList] = React.useState(["2021", "2022", "2023"]);
+//   const [selectedYear, setSelectedYear] = React.useState(null);
+//   const [textField, setTextField] = React.useState("");
+//
+//   // year options, const for now
+//   const yearOptions = [
+//     {key: "2020", text: "2020"},
+//     {key: "2021", text: "2021"},
+//     {key: "2022", text: "2022"},
+//   ];
+//
+//   // handlers
+//   const handleAddYearItem = () => {
+//     if (selectedYear === null) return;
+//     // year
+//     let _year = selectedYear ? selectedYear.key : null;
+//     // item array
+//     let itemArr = [...itemsArray];
+//     // max is 3 years
+//     if (itemArr.includes(_year)) {
+//       return;
+//     }
+//     // add item
+//     itemArr.push(_year);
+//     // set state
+//     setItemsArray(itemArr);
+//
+//     setYearData(oldState => ({
+//       ...oldState,
+//       [_year]: textField
+//     }));
+//
+//   };
+//
+//   const handleRemoveItem = (param: string) => {
+//     // item array
+//     let itemArr = [...itemsArray];
+//     let state = {...yearData};
+//     // filter
+//     let newArr = itemArr.filter(_year => _year !== param);
+//     // mutate state
+//     delete state[param];
+//     // set state
+//     setItemsArray(newArr);
+//     setYearData(state);
+//   };
+//
+//   // generate readonly text field
+//   const generateTextField = (param: string) => {
+//     return(
+//       <Stack horizontal tokens={{childrenGap: 8}}>
+//         <TextField key={param} value={yearData[param] as string} label={param} readOnly/>
+//         <PrimaryButton text={"clear"} onClick={() => handleRemoveItem(param)}/>
+//       </Stack>
+//     );
+//   };
+//
+//   return(
+//     <Stack>
+//       <Stack horizontal tokens={{childrenGap: 8}}>
+//         <Dropdown
+//           options={yearOptions}
+//           label={"year"}
+//           selectedKey={selectedYear ? selectedYear.key : undefined}
+//           onChange={(_, item) => setSelectedYear(item)}
+//         />
+//         <TextField
+//           value={textField}
+//           onChange={(_, newValue) => setTextField(newValue)}
+//           label={"Goal for the Year"}
+//           />
+//         <PrimaryButton text={"add"} onClick={handleAddYearItem}/>
+//       </Stack>
+//       <Stack>
+//         {
+//           itemsArray.map(_year => generateTextField(_year))
+//         }
+//       </Stack>
+//       <Stack>
+//         <StackItem>
+//           <Label htmlFor={"strengthWeakness"}>Identify Your Strength and strengthWeakness</Label>
+//           <TextField
+//             multiline
+//             id={"strengthWeakness"}
+//             value={data.strengthWeakness}
+//             onChange={(event, newValue) => _onChange("strengthWeakness", event, newValue)}
+//           />
+//         </StackItem>
+//       </Stack>
+//     </Stack>
+//   );
+// };
+//
+// const TrainingForm = ({trainData, setTrainData}: ITrainingControlProps): JSX.Element => {
+//   // initial state
+//   const initialState = {
+//     trainingTitle: "",
+//     trainingStatus: "",
+//     trainingDuration: "",
+//     trainingObjective: ""
+//   };
+//   // states
+//   const [itemsArray, setItemsArray] = React.useState<string[]>([]);
+//   const [stateData, setStateData] = React.useState(initialState);
+//
+//   // handlers
+//   const handleInputChange = (name: string, _: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, newValue?: string) => {
+//     setStateData(prevState => ({
+//       ...prevState,
+//       [name]:newValue
+//     }));
+//   };
+//
+//   const handleAddTrainingItem = () => {
+//     // states
+//     let _itemsArr = [...itemsArray];
+//     let _trainData = {...trainData};
+//     // array length
+//     let arrLen = _itemsArr.length;
+//     if (arrLen >= 4) return;
+//     // create property name
+//     let _name = stateData.trainingTitle.replace(/\s/g,'');
+//     // if already there
+//     if (itemsArray.includes(_name)) return;
+//     // else mutate
+//     _itemsArr.push(_name);
+//     _trainData = {
+//       ..._trainData,
+//       [_name]:stateData
+//     };
+//     // set states
+//     setItemsArray(_itemsArr);
+//     setTrainData(_trainData);
+//   };
+//
+//   const handleRemoveTrainingItem = (param: string) => {
+//     // item array
+//     let _itemArr = [...itemsArray];
+//     let _trainData = {...trainData};
+//     // filter
+//     let newArr = _itemArr.filter(_name => _name !== param);
+//     // mutate state
+//     delete _trainData[param];
+//     // set state
+//     setItemsArray(newArr);
+//     setTrainData(_trainData);
+//   };
+//
+//   // generate readonly text field
+//   const generateCardField = (param: string) => {
+//     return(
+//       <Stack horizontal tokens={{childrenGap: 8}}>
+//         <TextField key={param+0} value={trainData[param].trainingTitle} label={param} readOnly/>
+//         <TextField key={param+1} value={trainData[param].trainingObjective} label={param} readOnly/>
+//         <PrimaryButton text={"clear"} onClick={() => handleRemoveTrainingItem(param)}/>
+//       </Stack>
+//     );
+//   };
+//
+//   return (
+//     <Stack>
+//     <Stack>
+//       {
+//         itemsArray.map(_name => generateCardField(_name))
+//       }
+//     </Stack>
+//       <Stack>
+//         <StackItem>
+//           <Label htmlFor={"trainingTitle1"}>Add Training</Label>
+//           <TextField
+//             id={"trainingTitle1"}
+//             value={stateData.trainingTitle}
+//             onChange={(event, newValue) => handleInputChange("trainingTitle", event, newValue)}
+//             placeholder={"Training Name"}
+//           />
+//           <TextField
+//             value={stateData.trainingObjective}
+//             onChange={(event, newValue) => handleInputChange("trainingObjective", event, newValue)}
+//             placeholder={"Training Objective"}
+//           />
+//           <TextField
+//             value={stateData.trainingDuration}
+//             onChange={(event, newValue) => handleInputChange("trainingDuration", event, newValue)}
+//             placeholder={"Training Duration"}
+//           />
+//           <TextField
+//             value={stateData.trainingStatus}
+//             onChange={(event, newValue) => handleInputChange("trainingStatus", event, newValue)}
+//             placeholder={"Training Status"}
+//           />
+//         </StackItem>
+//         <PrimaryButton text={"add"} onClick={handleAddTrainingItem}/>
+//       </Stack>
+//     </Stack>
+//   );
+// };
+// const StakeHoldersForm = ({data, _onChange}: IBaseInputProps): JSX.Element => {
+//
+//   return(
+//     <Stack>
+//       <StackItem>
+//         <Label htmlFor={"stakeHolder1"}>Identity of stake holders</Label>
+//         <TextField id={"stakeHolder1"} multiline value={data.stakeHolder1} onChange={(event, newValue) => _onChange("stakeHolder1", event, newValue)}/>
+//       </StackItem>
+//       <StackItem>
+//         <Label htmlFor={"stakeHolder2"}>Discuss with stake holders</Label>
+//         <TextField id={"stakeHolder2"} multiline value={data.stakeHolder2} onChange={(event, newValue) => _onChange("stakeHolder2", event, newValue)}/>
+//       </StackItem>
+//       <StackItem>
+//         <Label htmlFor={"stakeHolder3"}>Steps stepsTaken</Label>
+//         <TextField id={"stakeHolder3"} multiline value={data.stakeHolder3} onChange={(event, newValue) => _onChange("stakeHolder3", event, newValue)}/>
+//       </StackItem>
+//     </Stack>
+//   );
+// };
 
 export default NewPage;

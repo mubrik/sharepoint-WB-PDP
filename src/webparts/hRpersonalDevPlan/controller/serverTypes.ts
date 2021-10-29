@@ -1,6 +1,6 @@
 import { sp } from "@pnp/sp/presets/core";
 import { WebPartContext } from "@microsoft/sp-webpart-base";
-import {initialFormData} from "../initialDataTypes";
+import {IFormYearData, IFormTrainingData, IFormBioData} from "../components/dataTypes";
 
 /* interface */
 export interface IServer {
@@ -8,22 +8,11 @@ export interface IServer {
   context: WebPartContext|null;
   getUserBioList: () => Promise<any[]| ISPBioDataObj[]>;
   getUserTrainingList: () => Promise<any[]| ISPTrainingDataObj[]>;
-  createEntry: (param: typeof initialFormData) => void;
-  // createDraft: (param: IServerReqObject) => Promise<void>;
+  createEntry: (yearData: IFormYearData, trainData: IFormTrainingData, stakeHolderData: IFormBioData) => void;
 }
 
-// export interface IServerReqObject {
-//   week: string;
-//   year: string;
-//   data: ISPJsFullItemsObj[];
-//   status: string;
-// }
-/* user data object received after filter*/
 export interface ISPBioDataObj {
   username: string;
-  year1: string;
-  year2: string;
-  year3: string;
   stakeHolder1: string;
   stakeHolder2: string;
   strengthWeakness: string;
@@ -46,4 +35,10 @@ export interface ISPTrainingDataObj{
   trainingObjective3: string;
   trainingStatus3: string;
   trainingDuration3: string;
+}
+
+export interface ISPYearGoalsObj{
+  username: string;
+  year: string;
+  yearGoal: string;
 }

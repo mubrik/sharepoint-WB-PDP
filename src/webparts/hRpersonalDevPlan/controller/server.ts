@@ -2,7 +2,7 @@ import { sp } from "@pnp/sp/presets/core";
 import { WebPartContext } from "@microsoft/sp-webpart-base";
 // types
 import {IServer, ISPBioDataObj, ISPTrainingDataObj} from "./serverTypes";
-import {initialFormData} from "../initialDataTypes";
+import {IFormYearData, IFormTrainingData, IFormBioData} from "../components/dataTypes";
 
 const LIST_COLUMNS = [
   "User", "Week", "Status", "Projects", "Description",
@@ -21,16 +21,14 @@ class Server implements IServer {
     this.context = context ? context : null;
   }
 
-  public getUserBioList = () => {
+  public getUserBioList = async () => {
     if (!this.context) {
       return new Promise(res => {
         res([]);
       }) as Promise<[]>;
     }
-    console.log(this.context);
-    console.log(this.fetch);
 
-    return this.fetch.web.lists.getByTitle("B4").items.get();
+    return this.fetch.web.lists.getByTitle("HR-PDP-TRAINING").items.get();
   }
 
   public getUserTrainingList = () => {
@@ -43,126 +41,74 @@ class Server implements IServer {
     return this.fetch.web.lists.getByTitle("HR-PDP1").items.select().filter("User eq '" + this.context.pageContext.user.loginName + "'").get();
   }
 
-  public createEntry = (param: typeof initialFormData) => {
+  public createEntry = (yearData: IFormYearData, trainData: IFormTrainingData, stakeHolderData: IFormBioData) => {
+    // bio data
+    this.createBioEntry(stakeHolderData);
+    // training
+    this.createTrainingEntry(trainData);
+    // year
+    this.createYearGoalEntry(yearData);
+  }
+
+  private createBioEntry = async (param: IFormBioData) => {
+    // copy
+    let _draft = {
+      ...param,
+      username: this.context.pageContext.user.loginName,
+    };
+    // get list, add item
+    const result = await this.fetch.web.lists.getByTitle("HR-PDP-BIOS").items.add(_draft);
+
+    console.log(result);
+  }
+
+  private createTrainingEntry = async (param: IFormTrainingData) => {
     // copy
     let _draft = {...param};
-    // create bio data
-    this.createBioData({
-      username: this.context.pageContext.user.loginName,
-      year1: _draft.year1,
-      year2: _draft.year2,
-      year3: _draft.year3,
-      stakeHolder1: _draft.stakeHolder1,
-      stakeHolder2: _draft.stakeHolder2,
-      strengthWeakness: _draft.strengthWeakness,
-      stepsTaken: _draft.stepsTaken,
-      continousImprovement: _draft.continousImprovement
+    console.log("train", _draft);
+    // list
+    let list = this.fetch.web.lists.getByTitle("HR-PDP-TRAINING");
+    // entity name of list needed for batch update
+    const entityTypeFullName = await list.getListItemEntityTypeFullName();
+    // batch
+    let batch = sp.web.createBatch();
+    // loop over
+    Object.keys(_draft).forEach(_training => {
+      list.items.inBatch(batch).add({
+        userName: this.context.pageContext.user.loginName,
+        trainingTitle: _draft[_training].trainingTitle,
+        trainingObjective: _draft[_training].trainingObjective,
+        trainingStatus: _draft[_training].trainingStatus,
+        trainingDuration: _draft[_training].trainingDuration,
+      }, entityTypeFullName)
+      .then(b => console.log(b));
     });
 
-    this.createTrainingData({
-      username: this.context.pageContext.user.loginName,
-      trainingTitle1: _draft.trainingTitle1,
-      trainingObjective1: _draft.trainingObjective1,
-      trainingStatus1: _draft.trainingStatus1,
-      trainingDuration1: _draft.trainingDuration1,
-      trainingTitle2: _draft.trainingTitle2,
-      trainingObjective2: _draft.trainingObjective2,
-      trainingStatus2: _draft.trainingStatus2,
-      trainingDuration2: _draft.trainingDuration2,
-      trainingTitle3: _draft.trainingTitle3,
-      trainingObjective3: _draft.trainingObjective3,
-      trainingStatus3: _draft.trainingStatus3,
-      trainingDuration3: _draft.trainingDuration3,
+    await batch.execute();
+
+  }
+
+  private createYearGoalEntry = async (param: IFormYearData) => {
+    // copy
+    let _draft = {...param};
+    // list
+    let list = this.fetch.web.lists.getByTitle("HR-PDP-YEAR");
+    // entity name of list needed for batch update
+    const entityTypeFullName = await list.getListItemEntityTypeFullName();
+    // batch
+    let batch = sp.web.createBatch();
+    // loop over
+    Object.keys(_draft).forEach(_year => {
+      list.items.inBatch(batch).add({
+        username: this.context.pageContext.user.loginName,
+        year: _year,
+        yearGoal: _draft[_year]
+      }, entityTypeFullName)
+      .then(b => console.log(b));
     });
+
+    await batch.execute();
   }
-
-  private createBioData = async (param: ISPBioDataObj) => {
-    // get list, add item
-    const result = await this.fetch.web.lists.getByTitle("HR-PDP1").items.add(param);
-
-    console.log(result);
-  }
-
-  private createTrainingData = async (param: ISPTrainingDataObj) => {
-    // get list, add item
-    const result = await this.fetch.web.lists.getByTitle("HR-PDP2").items.add(param);
-
-    console.log(result);
-  }
-
-  // public createDraft = async (param: IServerReqObject) => {
-  //   // slice
-  //   let _draft = {...param};
-  //   // get list
-  //   let list = this.fetch.web.lists.getByTitle("B4");
-  //
-  //   const entityTypeFullName = await list.getListItemEntityTypeFullName();
-  //   // batch
-  //   let batch = sp.web.createBatch();
-  //   // iterate
-  //   _draft.data.forEach((weekData => {
-  //     list.items.inBatch(batch).add({
-  //       User: this.context.pageContext.user.loginName,
-  //       Projects: weekData.project,
-  //       Description: weekData.description,
-  //       FreshService: weekData.freshService,
-  //       Location: weekData.location,
-  //       Status: "draft",
-  //       Task: weekData.task,
-  //       Year: _draft.year.toString(),
-  //       Week: _draft.week.toString(),
-  //       Monday: weekData.monday,
-  //       Tuesday: weekData.tuesday,
-  //       Wednesday: weekData.wednesday,
-  //       Thursday: weekData.thursday,
-  //       Friday: weekData.friday,
-  //       Saturday: weekData.saturday,
-  //       Sunday: weekData.sunday,
-  //     }, entityTypeFullName)
-  //     .then(b => console.log(b));
-  //   }));
-  //
-  //   await batch.execute();
-  //
-  //   console.log("Done");
-  // }
-  //
-  // public updateDraft = async (param: IServerReqObject, id: number) => {
-  //   // slice
-  //   let _draft = {...param};
-  //   // get list
-  //   let list = this.fetch.web.lists.getByTitle("B4");
-  //
-  //   const entityTypeFullName = await list.getListItemEntityTypeFullName();
-  //   // batch
-  //   let batch = sp.web.createBatch();
-  //   // iterate
-  //   _draft.data.forEach((weekData => {
-  //     list.items.getById(id).inBatch(batch).update({
-  //       User: this.context.pageContext.user.loginName,
-  //       Projects: weekData.project,
-  //       Description: weekData.description,
-  //       FreshService: weekData.freshService,
-  //       Location: weekData.location,
-  //       Status: "draft",
-  //       Task: weekData.task,
-  //       Year: _draft.year.toString(),
-  //       Week: _draft.week.toString(),
-  //       Monday: weekData.monday,
-  //       Tuesday: weekData.tuesday,
-  //       Wednesday: weekData.wednesday,
-  //       Thursday: weekData.thursday,
-  //       Friday: weekData.friday,
-  //       Saturday: weekData.saturday,
-  //       Sunday: weekData.sunday,
-  //     }, entityTypeFullName)
-  //     .then(b => console.log(b));
-  //   }));
-  //
-  //   await batch.execute();
-  //
-  //   console.log("Done");
-  // }
 }
 
 export default Server;
