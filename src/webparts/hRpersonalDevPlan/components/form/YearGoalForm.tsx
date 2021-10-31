@@ -2,12 +2,35 @@ import * as React from "react";
 // fabric ui
 import {TextField,
    Stack, PrimaryButton,
-   Dropdown
+   Dropdown, mergeStyleSets
  } from "office-ui-fabric-react";
 
 // components and types
 import {IYearControlProps,} from "./propTypes";
 import ValidationDisplay from "../utils/ValidationDisplay";
+
+// styles
+const gridCLasses = mergeStyleSets({
+  mainGrid: {
+    display: "flex",
+    flexDirection: "row",
+    flexWrap: "wrap",
+    width: "auto",
+    overflow: "hidden",
+  },
+  itemContainer: {
+    display: "flex",
+    alignItems: "center",
+    borderRadius: "4px",
+    margin: "4px",
+    cursor: "pointer",
+    boxShadow: "0px 0px 4px 0px #433f7e7d",
+    overflow: "hidden",
+  },
+  itemLabel: {
+    padding: "5px"
+  }
+});
 
 
 const PersonalInfoForm = ({yearData, setYearData, validState, setValidState}: IYearControlProps): JSX.Element => {
@@ -103,10 +126,10 @@ const PersonalInfoForm = ({yearData, setYearData, validState, setValidState}: IY
   // generate readonly text field
   const generateTextField = (param: string) => {
     return(
-      <Stack horizontal tokens={{childrenGap: 8}}>
-        <TextField key={param} value={yearData[param] as string} label={param} readOnly/>
+      <div className={gridCLasses.itemContainer}>
+        <TextField key={param} value={yearData[param] as string} readOnly/>
         <PrimaryButton text={"clear"} onClick={() => handleRemoveItem(param)}/>
-      </Stack>
+      </div>
     );
   };
 
@@ -131,14 +154,14 @@ const PersonalInfoForm = ({yearData, setYearData, validState, setValidState}: IY
         <PrimaryButton
           text={"add"}
           onClick={handleAddYearItem}
-          disabled={selectedYear === null || textField === ""}
+          disabled={selectedYear === null || textField === "" || itemsArray.length === 3}
         />
       </Stack>
-      <Stack>
+      <div className={gridCLasses.mainGrid}>
         {
           itemsArray.map(_year => generateTextField(_year))
         }
-      </Stack>
+      </div>
     </Stack>
   );
 };

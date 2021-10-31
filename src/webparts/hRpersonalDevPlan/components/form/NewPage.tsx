@@ -28,6 +28,37 @@ const NewPage = (): JSX.Element => {
   const [trainData, setTrainData] = React.useState<IFormTrainingData>({});
   const [pageState, setPageState] = React.useState(0);
   const [validState, setValidState] = React.useState<IValidState>(initialValidObj);
+  // effect for validation
+  React.useEffect(() => {
+    // valid
+    let valid = true;
+    // loop over for validstate for any false
+    for (const key in validState) {
+      if (key !== "state") {
+        // if any false
+        if (!validState[key].valid) {
+          setValidState(prevState => ({
+            ...prevState,
+            state: {valid: false, msg: validState[key].msg}
+          }));
+
+          valid = false;
+          return;
+        }
+      }
+    }
+
+    if (valid) {
+      // if no false
+      setValidState(prevState => ({
+        ...prevState,
+        state: {valid: true, msg: ""}
+      }));
+    }
+
+  },[validState.bioData, validState.trainData, validState.yearData]);
+
+  console.log("valid", validState.state.valid);
 
   // handler
   const handleInputChange = (name: string, _: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, newValue?: string) => {
@@ -92,7 +123,8 @@ const NewPage = (): JSX.Element => {
 
 
 
-const InputControl:React.FunctionComponent<IInputControlProps> = (props:IInputControlProps) => {
+const InputControl:React.FunctionComponent<IInputControlProps> = (
+  {pageState, setPageState, yearData, trainData, bioData, validState}:IInputControlProps) => {
 
   // context
   const makeRequest:IServer = React.useContext(RequestContext);
@@ -102,11 +134,11 @@ const InputControl:React.FunctionComponent<IInputControlProps> = (props:IInputCo
     switch(name) {
       case "prev":
         // minus
-        props.setPageState(props.pageState - 1);
+        setPageState(pageState - 1);
         break;
       case "next":
         // add
-        props.setPageState(props.pageState + 1);
+        setPageState(pageState + 1);
         break;
       default:
         break;
@@ -118,14 +150,14 @@ const InputControl:React.FunctionComponent<IInputControlProps> = (props:IInputCo
       .then(res => console.log(res))
       .catch(err => console.log(err));
 
-    makeRequest.createEntry(props.yearData, props.trainData, props.bioData as IFormBioData);
+    makeRequest.createEntry(yearData, trainData, bioData as IFormBioData);
   };
 
   return(
     <Stack horizontal horizontalAlign={"center"} tokens={{childrenGap: 7}}>
-      <PrimaryButton text={"Prev"} disabled={props.pageState === 0} onClick={() => handleNavigationClick("prev")}/>
-      <PrimaryButton text={"Next"} disabled={props.pageState === 2} onClick={() => handleNavigationClick("next")}/>
-      <PrimaryButton text={"Finish"} onClick={handleFinishClick}/>
+      <PrimaryButton text={"Prev"} disabled={pageState === 0} onClick={() => handleNavigationClick("prev")}/>
+      <PrimaryButton text={"Next"} disabled={pageState === 2} onClick={() => handleNavigationClick("next")}/>
+      <PrimaryButton text={"Finish"} onClick={handleFinishClick} disabled={!validState.valid}/>
     </Stack>
   );
 };

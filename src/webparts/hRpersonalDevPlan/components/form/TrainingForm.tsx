@@ -1,14 +1,38 @@
 import * as React from "react";
 // fabric ui
 import {TextField,
-   Stack, StackItem,
-   Label, PrimaryButton,
+   Stack, Label,
+   PrimaryButton, mergeStyleSets
  } from "office-ui-fabric-react";
 // components and types
 import {ITrainingControlProps,} from "./propTypes";
 import ValidationDisplay from "../utils/ValidationDisplay";
 // data
 import {initialTrainingFormData} from "../dataTypes";
+
+
+// styles
+const gridCLasses = mergeStyleSets({
+  mainGrid: {
+    display: "flex",
+    flexDirection: "row",
+    flexWrap: "wrap",
+    width: "auto",
+    overflow: "hidden",
+  },
+  itemContainer: {
+    display: "flex",
+    alignItems: "center",
+    borderRadius: "4px",
+    margin: "4px",
+    cursor: "pointer",
+    boxShadow: "0px 0px 4px 0px #433f7e7d",
+    overflow: "hidden",
+  },
+  itemLabel: {
+    padding: "5px"
+  }
+});
 
 
 const TrainingForm = ({trainData, setTrainData, validState, setValidState}: ITrainingControlProps): JSX.Element => {
@@ -102,11 +126,10 @@ const TrainingForm = ({trainData, setTrainData, validState, setValidState}: ITra
   // generate readonly text field
   const generateCardField = (param: string) => {
     return(
-      <Stack horizontal tokens={{childrenGap: 8}}>
-        <TextField key={param+0} value={trainData[param].trainingTitle} label={param} readOnly/>
-        <TextField key={param+1} value={trainData[param].trainingObjective} label={param} readOnly/>
-        <PrimaryButton text={"clear"} onClick={() => handleRemoveTrainingItem(param)}/>
-      </Stack>
+      <div className={gridCLasses.itemContainer}>
+        <TextField key={param+0} value={trainData[param].trainingTitle} readOnly/>
+        <PrimaryButton text={"del"} onClick={() => handleRemoveTrainingItem(param)}/>
+      </div>
     );
   };
 
@@ -116,24 +139,14 @@ const TrainingForm = ({trainData, setTrainData, validState, setValidState}: ITra
         valid={validState.valid}
         msg={validState.msg}
       />
-    <Stack>
-      {
-        itemsArray.map(_name => generateCardField(_name))
-      }
-    </Stack>
-      <Stack>
-        <StackItem>
-          <Label htmlFor={"trainingTitle1"}>Add Training</Label>
+      <Stack tokens={{childrenGap:8}}>
+        <Label>Add Training</Label>
+        <Stack horizontal wrap tokens={{childrenGap:8}}>
           <TextField
             id={"trainingTitle1"}
             value={stateData.trainingTitle}
             onChange={(event, newValue) => handleInputChange("trainingTitle", event, newValue)}
             placeholder={"Training Name"}
-          />
-          <TextField
-            value={stateData.trainingObjective}
-            onChange={(event, newValue) => handleInputChange("trainingObjective", event, newValue)}
-            placeholder={"Training Objective"}
           />
           <TextField
             value={stateData.trainingDuration}
@@ -145,8 +158,25 @@ const TrainingForm = ({trainData, setTrainData, validState, setValidState}: ITra
             onChange={(event, newValue) => handleInputChange("trainingStatus", event, newValue)}
             placeholder={"Training Status"}
           />
-        </StackItem>
-        <PrimaryButton text={"add"} onClick={handleAddTrainingItem}/>
+        </Stack>
+        <Stack tokens={{childrenGap:8, padding:2}}>
+          <TextField
+            multiline
+            value={stateData.trainingObjective}
+            onChange={(event, newValue) => handleInputChange("trainingObjective", event, newValue)}
+            placeholder={"Training Objective"}
+          />
+          <PrimaryButton
+            text={"add"}
+            onClick={handleAddTrainingItem}
+            disabled={itemsArray.length === 4}
+          />
+        </Stack>
+        <div className={gridCLasses.mainGrid}>
+          {
+            itemsArray.map(_name => generateCardField(_name))
+          }
+        </div>
       </Stack>
     </Stack>
   );

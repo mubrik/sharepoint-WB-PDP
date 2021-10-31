@@ -42,3 +42,7 @@ export interface ISPYearGoalsObj{
   year: string;
   yearGoal: string;
 }
+
+export interface IPartialSPdata {
+  [key: string]: string;
+}
