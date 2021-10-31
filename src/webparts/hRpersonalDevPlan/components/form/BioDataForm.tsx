@@ -13,30 +13,35 @@ const BioForm = ({bioData, _onChange, validState, setValidState}: IBioControlPro
 
   // effect for validation
   React.useEffect(() => {
-    // make sure length is > 5
-    Object.keys(bioData).forEach(_prop => {
-      let _string: string = bioData[_prop];
-      console.log(_string);
-      if (_string.length <= 5 || _string === "") {
+    // default true
+    let isValid = true;
+    // loop, break if any invalid
+    for (const key in bioData) {
+       let _text: string = bioData[key];
 
-        setValidState(prevState => ({
-          ...prevState,
-          bioData: {
-            valid: false,
-            msg: "Minimum lenght of 5 characters"
-          }
-        }));
+       if (_text.length <= 5 || _text === "") {
+         isValid = false;
+         setValidState(prevState => ({
+           ...prevState,
+           bioData: {
+             valid: false,
+             msg: "Minimum lenght of 5 characters"
+           }
+         }));
+         break;
+       }
+     }
+     // runs if loop doesnt break
+     if (isValid) {
+       setValidState(prevState => ({
+         ...prevState,
+         bioData: {
+           valid: true,
+           msg: ""
+         }
+       }));
+     }
 
-      } else {
-        setValidState(prevState => ({
-          ...prevState,
-          bioData: {
-            valid: true,
-            msg: ""
-          }
-        }));
-      }
-    });
   }, [bioData]);
 
   return(
