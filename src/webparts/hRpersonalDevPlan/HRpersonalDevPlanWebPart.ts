@@ -11,7 +11,6 @@ import * as strings from 'HRpersonalDevPlanWebPartStrings';
 import HRpersonalDevPlan from './components/HRpersonalDevPlan';
 import { IHRpersonalDevPlanProps } from './components/IHRpersonalDevPlanProps';
 // custom
-import requestServer from "./controller/server";
 import { sp } from "@pnp/sp/presets/core";
 
 export interface IHRpersonalDevPlanWebPartProps {
@@ -26,7 +25,6 @@ export default class HRpersonalDevPlanWebPart extends BaseClientSideWebPart<IHRp
       {
         description: this.properties.description,
         context: this.context,
-        request: new requestServer(this.context)
       }
     );
 

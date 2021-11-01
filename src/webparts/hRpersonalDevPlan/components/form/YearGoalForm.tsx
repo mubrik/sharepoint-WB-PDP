@@ -2,7 +2,8 @@ import * as React from "react";
 // fabric ui
 import {TextField,
    Stack, PrimaryButton,
-   Dropdown, mergeStyleSets
+   Dropdown, mergeStyleSets,
+   IDropdownOption
  } from "office-ui-fabric-react";
 
 // components and types
@@ -37,7 +38,7 @@ const PersonalInfoForm = ({yearData, setYearData, validState, setValidState}: IY
 
   // states
   const [itemsArray, setItemsArray] = React.useState<string[]>([]);
-  // const [yearList, setYearList] = React.useState(["2021", "2022", "2023"]);
+  const [yearOptions, setYearOptions] = React.useState<IDropdownOption[]>([]);
   const [selectedYear, setSelectedYear] = React.useState(null);
   const [textField, setTextField] = React.useState("");
 
@@ -79,13 +80,28 @@ const PersonalInfoForm = ({yearData, setYearData, validState, setValidState}: IY
     // mutate
     setItemsArray(_items);
   },[yearData]);
+  // effect to set years options
+  React.useEffect(() => {
+    // curr year
+    let date = new Date();
+    // year string
+    let year1 = date.getFullYear() + "";
+    let year2 = date.getFullYear() + 1 + "";
+    let year3 = date.getFullYear() + 2 + "";
+    // loop
+    setYearOptions([
+      {key: year1, text: year1},
+      {key: year2, text: year2},
+      {key: year3, text: year3},
+    ]);
+  }, []);
 
   // year options, const for now
-  const yearOptions = [
-    {key: "2020", text: "2020"},
-    {key: "2021", text: "2021"},
-    {key: "2022", text: "2022"},
-  ];
+  // const yearOptions = [
+  //   {key: "2020", text: "2020"},
+  //   {key: "2021", text: "2021"},
+  //   {key: "2022", text: "2022"},
+  // ];
 
   // handlers
   const handleAddYearItem = () => {
@@ -139,20 +155,22 @@ const PersonalInfoForm = ({yearData, setYearData, validState, setValidState}: IY
         valid={validState.valid}
         msg={validState.msg}
       />
-      <Stack horizontal verticalAlign={"end"} tokens={{childrenGap: 8}}>
+      <Stack verticalAlign={"end"} tokens={{childrenGap: 8}}>
         <Dropdown
           options={yearOptions}
-          label={"year"}
+          label={"Select Year"}
           selectedKey={selectedYear ? selectedYear.key : undefined}
           onChange={(_, item) => setSelectedYear(item)}
         />
         <TextField
+          multiline
           value={textField}
           onChange={(_, newValue) => setTextField(newValue)}
           label={"Goal for the Year"}
+          placeholder={"What are your dreams – envision where you would like your career to be at specific point of time."}
         />
         <PrimaryButton
-          text={"add"}
+          text={"Add Goal"}
           onClick={handleAddYearItem}
           disabled={selectedYear === null || textField === "" || itemsArray.length === 3}
         />

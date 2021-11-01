@@ -82,6 +82,11 @@ const TrainingForm = ({trainData, setTrainData, validState, setValidState}: ITra
 
   // handlers
   const handleInputChange = (name: string, _: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, newValue?: string) => {
+    if (name === "trainingStatus") {
+      newValue = Number(newValue) > 100 ? "100"
+                : Number(newValue) <  0 ? "0" : newValue;
+    }
+
     setStateData(prevState => ({
       ...prevState,
       [name]:newValue
@@ -141,35 +146,44 @@ const TrainingForm = ({trainData, setTrainData, validState, setValidState}: ITra
       />
       <Stack tokens={{childrenGap:8}}>
         <Label>Add Training</Label>
-        <Stack horizontal wrap tokens={{childrenGap:8}}>
+        <Stack horizontal wrap tokens={{childrenGap:8, padding:4}}>
           <TextField
+            required
             id={"trainingTitle1"}
+            label={"Training Name"}
             value={stateData.trainingTitle}
             onChange={(event, newValue) => handleInputChange("trainingTitle", event, newValue)}
-            placeholder={"Training Name"}
+            placeholder={"eg. Project Management - PMP"}
           />
           <TextField
+            label={"Training Duration"}
             value={stateData.trainingDuration}
             onChange={(event, newValue) => handleInputChange("trainingDuration", event, newValue)}
-            placeholder={"Training Duration"}
+            placeholder={"Duration eg. 1 month, 2 years"}
           />
           <TextField
+            type={"number"}
+            label={"Training Status"}
+            min={0}
+            max={100}
             value={stateData.trainingStatus}
             onChange={(event, newValue) => handleInputChange("trainingStatus", event, newValue)}
-            placeholder={"Training Status"}
+            placeholder={"0 - 100"}
           />
         </Stack>
         <Stack tokens={{childrenGap:8, padding:2}}>
           <TextField
             multiline
+            required
+            label={"Training Objective"}
             value={stateData.trainingObjective}
             onChange={(event, newValue) => handleInputChange("trainingObjective", event, newValue)}
             placeholder={"Training Objective"}
           />
           <PrimaryButton
-            text={"add"}
+            text={"Add Training"}
             onClick={handleAddTrainingItem}
-            disabled={itemsArray.length === 4}
+            disabled={itemsArray.length === 4 || stateData.trainingTitle === "" || stateData.trainingObjective === "" }
           />
         </Stack>
         <div className={gridCLasses.mainGrid}>

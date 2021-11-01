@@ -1,9 +1,10 @@
 
-export const initialBioFormData = {
-  strengthWeakness: "",
+export const initialBioFormData: IFormBioData = {
   stakeHolder1: "",
   stakeHolder2: "",
-  stakeHolder3: "",
+  continousImprovement: "",
+  strengthWeakness: "",
+  stepsTaken: ""
 };
 
 export const initialTrainingFormData = {
@@ -44,10 +45,9 @@ export interface IFormTrainingData {
 export interface IFormBioData {
   stakeHolder1: string;
   stakeHolder2: string;
-  stakeHolder3: string;
   strengthWeakness: string;
-  // continousImprovement: string;
-  // stepsTaken: string;
+  continousImprovement: string;
+  stepsTaken: string;
 }
 
 // interface for single training data
@@ -56,4 +56,10 @@ export interface ISingleTrainingData {
   trainingObjective: string;
   trainingStatus: string;
   trainingDuration: string;
+}
+
+export interface IFormUserData {
+  username: string;
+  lineManager: string;
+  jobTitle: string;
 }

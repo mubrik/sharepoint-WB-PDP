@@ -1,57 +1,82 @@
 import { sp } from "@pnp/sp/presets/core";
-import { WebPartContext } from "@microsoft/sp-webpart-base";
+import "@pnp/sp/webs";
+import "@pnp/sp/site-users";
+import "@pnp/sp/profiles";
 // types
-import { IServer, IPartialSPdata } from "./serverTypes";
-import {IFormYearData, IFormTrainingData, IFormBioData} from "../components/dataTypes";
+import { IServer, IPartialSPdata, IUserData } from "./serverTypes";
+import {IFormYearData, IFormTrainingData, IFormBioData, IFormUserData} from "../components/dataTypes";
 
-const LIST_COLUMNS = [
-  "User", "Week", "Status", "Projects", "Description",
-  "Task", "Location", "FreshService", "Monday", "Tuesday",
-  "Wednesday", "Thursday", "Friday", "Saturday", "Sunday",
-  "Year", "Id"
-];
+// const LIST_COLUMNS = [
+//   "User", "Week", "Status", "Projects", "Description",
+//   "Task", "Location", "FreshService", "Monday", "Tuesday",
+//   "Wednesday", "Thursday", "Friday", "Saturday", "Sunday",
+//   "Year", "Id"
+// ];
 
 /* handler for CRUD REST requests */
 class Server implements IServer {
 
   public fetch = sp;
-  public context: WebPartContext|null;
 
-  public constructor (context:WebPartContext ) {
-    this.context = context ? context : null;
-  }
-
-  public getUserBioList = async () => {
-    if (!this.context) {
-      return new Promise(res => {
-        res([]);
-      }) as Promise<[]>;
+  public getUser = async ():Promise<IUserData> => {
+    try {
+      // get profile and user
+      const profile = await sp.profiles.myProperties.get();
+      let user = await sp.web.currentUser();
+      // vars
+      let managersArr: string[] = profile.ExtendedManagers;
+      let manager = "";
+      // for fse
+      if (profile.Title === "Field Support Engineer") {
+        // 2nd item to last and split
+        let _ = managersArr[managersArr.length - 2].split("|");
+        // last string is manager
+        manager = _[_.length - 1];
+      } else {
+        let _ = managersArr[managersArr.length - 1].split("|");
+        // split the string
+        manager = _[_.length - 1];
+      }
+      // return
+      return {
+        ok: true,
+        id: user.Id,
+        email: profile.Email,
+        displayName: profile.DisplayName,
+        manager: manager,
+        jobTitle: profile.Title
+      };
+    } catch (err) {
+      console.log(err);
+      return {
+        ok: false
+      };
     }
-
-    return this.fetch.web.lists.getByTitle("HR-PDP-TRAINING").items.get();
   }
 
-  public getUserTrainingList = () => {
-    if (!this.context) {
-      return new Promise(res => {
-        res([]);
-      }) as Promise<[]>;
+  public getUserList = (username: string) => {
+    try {
+      return this.fetch.web.lists.getByTitle("HR-PDP-SINGLE").items.select().filter("username eq '" + username + "'").get();
+    } catch (err) {
+      console.log(err);
     }
-
-    return this.fetch.web.lists.getByTitle("HR-PDP1").items.select().filter("User eq '" + this.context.pageContext.user.loginName + "'").get();
   }
 
-  public createEntry = async (yearData: IFormYearData, trainData: IFormTrainingData, stakeHolderData: IFormBioData) => {
+  public createEntry =
+    async (userData: IFormUserData, yearData: IFormYearData, trainData: IFormTrainingData, stakeHolderData: IFormBioData) => {
 
     // creat partial data
+    console.log(userData);
+
     let _partial = this.processSharepointData(yearData, trainData);
-    console.log(_partial);
     // mutate
     let _draft = {
-      username: this.context.pageContext.user.loginName,
+      ...userData,
       ...stakeHolderData,
       ..._partial
     };
+
+    console.log(_draft);
     // get list, add item
     const result = await this.fetch.web.lists.getByTitle("HR-PDP-SINGLE").items.add(_draft);
 
@@ -61,7 +86,10 @@ class Server implements IServer {
 
   private processSharepointData = (yearData: IFormYearData, trainData: IFormTrainingData): IPartialSPdata => {
     // state
-    let _spData = {};
+    let _spData = {
+      "yearsTotal": Object.keys(yearData).length + "",
+      "trainingTotal": Object.keys(trainData).length + ""
+    };
     // loop over year data
     Object.keys(yearData).forEach((_year, _index) => {
       // number
@@ -93,4 +121,6 @@ class Server implements IServer {
   }
 }
 
-export default Server;
+const fetchServer = new Server();
+
+export {fetchServer};

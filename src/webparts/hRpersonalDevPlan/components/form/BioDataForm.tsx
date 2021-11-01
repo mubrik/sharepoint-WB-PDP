@@ -25,7 +25,7 @@ const BioForm = ({bioData, _onChange, validState, setValidState}: IBioControlPro
            ...prevState,
            bioData: {
              valid: false,
-             msg: "Minimum lenght of 5 characters"
+             msg: "Minimum length of 5 characters"
            }
          }));
          break;
@@ -51,18 +51,6 @@ const BioForm = ({bioData, _onChange, validState, setValidState}: IBioControlPro
         msg={validState.msg}
       />
       <StackItem>
-        <Label htmlFor={"stakeHolder1"}>Identity of stake holders</Label>
-        <TextField id={"stakeHolder1"} multiline value={bioData.stakeHolder1} onChange={(event, newValue) => _onChange("stakeHolder1", event, newValue)}/>
-      </StackItem>
-      <StackItem>
-        <Label htmlFor={"stakeHolder2"}>Discuss with stake holders</Label>
-        <TextField id={"stakeHolder2"} multiline value={bioData.stakeHolder2} onChange={(event, newValue) => _onChange("stakeHolder2", event, newValue)}/>
-      </StackItem>
-      <StackItem>
-        <Label htmlFor={"stakeHolder3"}>Steps stepsTaken</Label>
-        <TextField id={"stakeHolder3"} multiline value={bioData.stakeHolder3} onChange={(event, newValue) => _onChange("stakeHolder3", event, newValue)}/>
-      </StackItem>
-      <StackItem>
         <Label htmlFor={"strengthWeakness"}>Identify Your Strength and strengthWeakness</Label>
         <TextField
           multiline
@@ -70,6 +58,51 @@ const BioForm = ({bioData, _onChange, validState, setValidState}: IBioControlPro
           id={"strengthWeakness"}
           value={bioData.strengthWeakness}
           onChange={(event, newValue) => _onChange("strengthWeakness", event, newValue)}
+          placeholder={"Strengths: My weaknesses: Opportunities:  The identified threat: "}
+        />
+      </StackItem>
+      <StackItem>
+        <Label htmlFor={"stakeHolder1"}>Stakeholders requirements</Label>
+        <TextField
+          multiline
+          required
+          id={"stakeHolder1"}
+          value={bioData.stakeHolder1}
+          onChange={(event, newValue) => _onChange("stakeHolder1", event, newValue)}
+          placeholder={"Ascertain the identity of your stakeholders and what their requirements are."}
+        />
+      </StackItem>
+      <StackItem>
+        <Label htmlFor={"stakeHolder2"}>What's Next</Label>
+        <TextField
+          required
+          multiline
+          id={"stakeHolder2"}
+          value={bioData.stakeHolder2}
+          onChange={(event, newValue) => _onChange("stakeHolder2", event, newValue)}
+          placeholder={"Identify, discuss and agree the actions that you and the company need to put into place to advance your career to the desired target."}
+        />
+      </StackItem>
+      <StackItem>
+        <Label htmlFor={"stepsTaken"}>Steps Taken</Label>
+        <TextField
+          required
+          multiline
+          id={"stepsTaken"}
+          value={bioData.stepsTaken}
+          onChange={(event, newValue) => _onChange("stepsTaken", event, newValue)}
+          placeholder={"Steps taken to implement the agreed action."}
+        />
+      </StackItem>
+      <StackItem>
+        <Label htmlFor={"continousImprovement"}>Continous Improvement</Label>
+        <TextField
+          multiline
+          required
+          id={"continousImprovement"}
+          value={bioData.continousImprovement}
+          onChange={(event, newValue) => _onChange("continousImprovement", event, newValue)}
+          placeholder={"Embark on a “Continuous Improvement” programme on those performance features you are already comfortable with."}
         />
       </StackItem>
     </Stack>

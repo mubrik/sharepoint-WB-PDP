@@ -4,19 +4,22 @@ import {
    Stack,
    Label, PrimaryButton,
  } from "office-ui-fabric-react";
- // contexts
- import {RequestContext} from "../HRpersonalDevPlan";
+import {fetchServer} from "../../controller/server";
+import {IUserData} from "../../controller/serverTypes";
+// context
+import {UserContext} from "../HRpersonalDevPlan";
 // components and types
 import BioDataForm from "./BioDataForm";
 import TrainingForm from "./TrainingForm";
 import YearGoalForm from "./YearGoalForm";
 import {IInputControlProps} from "./propTypes";
-import {IValidState} from "../dataTypes";
+import {IValidState, IFormUserData} from "../dataTypes";
 import {initialBioFormData,
   IFormYearData, initialValidObj,
   IFormBioData, IFormTrainingData
 } from "../dataTypes";
-import {IServer} from "../../controller/serverTypes";
+// utils
+import ResponsivePrimaryButton from "../utils/ResponsiveButton";
 
 // new page
 const NewPage = (): JSX.Element => {
@@ -57,12 +60,11 @@ const NewPage = (): JSX.Element => {
     }
 
   },[validState.bioData, validState.trainData, validState.yearData]);
-
-  console.log("valid", validState.state.valid);
+  // context
+  const userData:IUserData = React.useContext(UserContext);
 
   // handler
   const handleInputChange = (name: string, _: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, newValue?: string) => {
-    console.log(name);
     // set data by name
     setBioData(oldData => {
       return {
@@ -75,7 +77,11 @@ const NewPage = (): JSX.Element => {
   return (
     <Stack tokens={{childrenGap: 8}}>
     <Stack>
-      <Label> Random stuff</Label>
+      {
+        userData.ok ?
+        <Label>{userData.displayName} PERSONAL DEVELOPMENT PLAN </Label> :
+        <Label> PERSONAL DEVELOPMENT PLAN </Label>
+      }
     </Stack>
     <Stack>
       {
@@ -127,7 +133,7 @@ const InputControl:React.FunctionComponent<IInputControlProps> = (
   {pageState, setPageState, yearData, trainData, bioData, validState}:IInputControlProps) => {
 
   // context
-  const makeRequest:IServer = React.useContext(RequestContext);
+  const userData:IUserData = React.useContext(UserContext);
 
   // event handlers
   const handleNavigationClick = (name: string) => {
@@ -146,240 +152,39 @@ const InputControl:React.FunctionComponent<IInputControlProps> = (
   };
 
   const handleFinishClick = () => {
-    makeRequest.getUserBioList()
-      .then(res => console.log(res))
-      .catch(err => console.log(err));
+    // make user obj
+    const userObj: IFormUserData = {
+      username: userData.email,
+      lineManager: userData.manager,
+      jobTitle: userData.jobTitle
+    };
 
-    makeRequest.createEntry(yearData, trainData, bioData as IFormBioData);
+    // server req with data
+    fetchServer.createEntry(
+      userObj,
+      yearData,
+      trainData,
+      bioData as IFormBioData,
+    );
   };
 
   return(
     <Stack horizontal horizontalAlign={"center"} tokens={{childrenGap: 7}}>
-      <PrimaryButton text={"Prev"} disabled={pageState === 0} onClick={() => handleNavigationClick("prev")}/>
-      <PrimaryButton text={"Next"} disabled={pageState === 2} onClick={() => handleNavigationClick("next")}/>
+      <ResponsivePrimaryButton
+        text={"Prev"}
+        disabled={pageState === 0}
+        onClick={() => handleNavigationClick("prev")}
+        iconProps={{iconName: 'ChromeBack' }}
+      />
+      <ResponsivePrimaryButton
+        text={"Next"}
+        disabled={pageState === 2}
+        onClick={() => handleNavigationClick("next")}
+        iconProps={{iconName: 'ChromeBackMirrored' }}
+      />
       <PrimaryButton text={"Finish"} onClick={handleFinishClick} disabled={!validState.valid}/>
     </Stack>
   );
 };
-
-// const PersonalInfoForm = ({yearData, setYearData, data, _onChange}: IYearControlProps): JSX.Element => {
-//
-//   // states
-//   const [itemsArray, setItemsArray] = React.useState<string[]>([]);
-//   // const [yearList, setYearList] = React.useState(["2021", "2022", "2023"]);
-//   const [selectedYear, setSelectedYear] = React.useState(null);
-//   const [textField, setTextField] = React.useState("");
-//
-//   // year options, const for now
-//   const yearOptions = [
-//     {key: "2020", text: "2020"},
-//     {key: "2021", text: "2021"},
-//     {key: "2022", text: "2022"},
-//   ];
-//
-//   // handlers
-//   const handleAddYearItem = () => {
-//     if (selectedYear === null) return;
-//     // year
-//     let _year = selectedYear ? selectedYear.key : null;
-//     // item array
-//     let itemArr = [...itemsArray];
-//     // max is 3 years
-//     if (itemArr.includes(_year)) {
-//       return;
-//     }
-//     // add item
-//     itemArr.push(_year);
-//     // set state
-//     setItemsArray(itemArr);
-//
-//     setYearData(oldState => ({
-//       ...oldState,
-//       [_year]: textField
-//     }));
-//
-//   };
-//
-//   const handleRemoveItem = (param: string) => {
-//     // item array
-//     let itemArr = [...itemsArray];
-//     let state = {...yearData};
-//     // filter
-//     let newArr = itemArr.filter(_year => _year !== param);
-//     // mutate state
-//     delete state[param];
-//     // set state
-//     setItemsArray(newArr);
-//     setYearData(state);
-//   };
-//
-//   // generate readonly text field
-//   const generateTextField = (param: string) => {
-//     return(
-//       <Stack horizontal tokens={{childrenGap: 8}}>
-//         <TextField key={param} value={yearData[param] as string} label={param} readOnly/>
-//         <PrimaryButton text={"clear"} onClick={() => handleRemoveItem(param)}/>
-//       </Stack>
-//     );
-//   };
-//
-//   return(
-//     <Stack>
-//       <Stack horizontal tokens={{childrenGap: 8}}>
-//         <Dropdown
-//           options={yearOptions}
-//           label={"year"}
-//           selectedKey={selectedYear ? selectedYear.key : undefined}
-//           onChange={(_, item) => setSelectedYear(item)}
-//         />
-//         <TextField
-//           value={textField}
-//           onChange={(_, newValue) => setTextField(newValue)}
-//           label={"Goal for the Year"}
-//           />
-//         <PrimaryButton text={"add"} onClick={handleAddYearItem}/>
-//       </Stack>
-//       <Stack>
-//         {
-//           itemsArray.map(_year => generateTextField(_year))
-//         }
-//       </Stack>
-//       <Stack>
-//         <StackItem>
-//           <Label htmlFor={"strengthWeakness"}>Identify Your Strength and strengthWeakness</Label>
-//           <TextField
-//             multiline
-//             id={"strengthWeakness"}
-//             value={data.strengthWeakness}
-//             onChange={(event, newValue) => _onChange("strengthWeakness", event, newValue)}
-//           />
-//         </StackItem>
-//       </Stack>
-//     </Stack>
-//   );
-// };
-//
-// const TrainingForm = ({trainData, setTrainData}: ITrainingControlProps): JSX.Element => {
-//   // initial state
-//   const initialState = {
-//     trainingTitle: "",
-//     trainingStatus: "",
-//     trainingDuration: "",
-//     trainingObjective: ""
-//   };
-//   // states
-//   const [itemsArray, setItemsArray] = React.useState<string[]>([]);
-//   const [stateData, setStateData] = React.useState(initialState);
-//
-//   // handlers
-//   const handleInputChange = (name: string, _: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, newValue?: string) => {
-//     setStateData(prevState => ({
-//       ...prevState,
-//       [name]:newValue
-//     }));
-//   };
-//
-//   const handleAddTrainingItem = () => {
-//     // states
-//     let _itemsArr = [...itemsArray];
-//     let _trainData = {...trainData};
-//     // array length
-//     let arrLen = _itemsArr.length;
-//     if (arrLen >= 4) return;
-//     // create property name
-//     let _name = stateData.trainingTitle.replace(/\s/g,'');
-//     // if already there
-//     if (itemsArray.includes(_name)) return;
-//     // else mutate
-//     _itemsArr.push(_name);
-//     _trainData = {
-//       ..._trainData,
-//       [_name]:stateData
-//     };
-//     // set states
-//     setItemsArray(_itemsArr);
-//     setTrainData(_trainData);
-//   };
-//
-//   const handleRemoveTrainingItem = (param: string) => {
-//     // item array
-//     let _itemArr = [...itemsArray];
-//     let _trainData = {...trainData};
-//     // filter
-//     let newArr = _itemArr.filter(_name => _name !== param);
-//     // mutate state
-//     delete _trainData[param];
-//     // set state
-//     setItemsArray(newArr);
-//     setTrainData(_trainData);
-//   };
-//
-//   // generate readonly text field
-//   const generateCardField = (param: string) => {
-//     return(
-//       <Stack horizontal tokens={{childrenGap: 8}}>
-//         <TextField key={param+0} value={trainData[param].trainingTitle} label={param} readOnly/>
-//         <TextField key={param+1} value={trainData[param].trainingObjective} label={param} readOnly/>
-//         <PrimaryButton text={"clear"} onClick={() => handleRemoveTrainingItem(param)}/>
-//       </Stack>
-//     );
-//   };
-//
-//   return (
-//     <Stack>
-//     <Stack>
-//       {
-//         itemsArray.map(_name => generateCardField(_name))
-//       }
-//     </Stack>
-//       <Stack>
-//         <StackItem>
-//           <Label htmlFor={"trainingTitle1"}>Add Training</Label>
-//           <TextField
-//             id={"trainingTitle1"}
-//             value={stateData.trainingTitle}
-//             onChange={(event, newValue) => handleInputChange("trainingTitle", event, newValue)}
-//             placeholder={"Training Name"}
-//           />
-//           <TextField
-//             value={stateData.trainingObjective}
-//             onChange={(event, newValue) => handleInputChange("trainingObjective", event, newValue)}
-//             placeholder={"Training Objective"}
-//           />
-//           <TextField
-//             value={stateData.trainingDuration}
-//             onChange={(event, newValue) => handleInputChange("trainingDuration", event, newValue)}
-//             placeholder={"Training Duration"}
-//           />
-//           <TextField
-//             value={stateData.trainingStatus}
-//             onChange={(event, newValue) => handleInputChange("trainingStatus", event, newValue)}
-//             placeholder={"Training Status"}
-//           />
-//         </StackItem>
-//         <PrimaryButton text={"add"} onClick={handleAddTrainingItem}/>
-//       </Stack>
-//     </Stack>
-//   );
-// };
-// const StakeHoldersForm = ({data, _onChange}: IBaseInputProps): JSX.Element => {
-//
-//   return(
-//     <Stack>
-//       <StackItem>
-//         <Label htmlFor={"stakeHolder1"}>Identity of stake holders</Label>
-//         <TextField id={"stakeHolder1"} multiline value={data.stakeHolder1} onChange={(event, newValue) => _onChange("stakeHolder1", event, newValue)}/>
-//       </StackItem>
-//       <StackItem>
-//         <Label htmlFor={"stakeHolder2"}>Discuss with stake holders</Label>
-//         <TextField id={"stakeHolder2"} multiline value={data.stakeHolder2} onChange={(event, newValue) => _onChange("stakeHolder2", event, newValue)}/>
-//       </StackItem>
-//       <StackItem>
-//         <Label htmlFor={"stakeHolder3"}>Steps stepsTaken</Label>
-//         <TextField id={"stakeHolder3"} multiline value={data.stakeHolder3} onChange={(event, newValue) => _onChange("stakeHolder3", event, newValue)}/>
-//       </StackItem>
-//     </Stack>
-//   );
-// };
 
 export default NewPage;
