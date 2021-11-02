@@ -6,6 +6,7 @@ import {Stack} from "office-ui-fabric-react";
 import NavBar from "./nav/Navbar";
 import NewPage from "./form/NewPage";
 import ViewPage from "./view/ViewPage";
+import ApprovalPage from "./approval/ApprovalPage";
 // types
 import {IUserData} from "../controller/serverTypes";
 import {fetchServer} from "../controller/server";
@@ -35,6 +36,7 @@ const MainPage:React.FunctionComponent<IHRpersonalDevPlanProps> = () => {
     .then(res => {
       // if successful
       if (res.ok) {
+        console.log(res);
         setUserData({
           ...res
         });
@@ -53,6 +55,24 @@ const MainPage:React.FunctionComponent<IHRpersonalDevPlanProps> = () => {
       {
         pageState === "plan" &&
         <ViewPage/>
+      }
+      {
+        pageState === "hr" &&
+        <ApprovalPage
+          userType={"hr"}
+        />
+      }
+      {
+        pageState === "lineManager" &&
+        <ApprovalPage
+          userType={"lineManager"}
+        />
+      }
+      {
+        pageState === "gc" &&
+        <ApprovalPage
+          userType={"gc"}
+        />
       }
     </UserContext.Provider>
     </Stack>

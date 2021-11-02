@@ -4,8 +4,12 @@ import {IFormYearData, IFormTrainingData, IFormBioData, IFormUserData} from "../
 /* interface */
 export interface IServer {
   fetch: typeof sp;
+  testing: () => Promise<void>;
   getUser: () => Promise<IUserData>;
   getUserList: (username: string) => Promise<any[]| ISPFullObj[]>;
+  getHrList: (username: string) => Promise<any[]| ISPFullObj[]>;
+  getLineManagerList: (username: string) => Promise<any[]| ISPFullObj[]>;
+  getGroupHeadList: (username: string) => Promise<any[]| ISPFullObj[]>;
   createEntry: (
     userData: IFormUserData,
     yearData: IFormYearData,
@@ -47,6 +51,7 @@ export interface ISPYearGoalsObj{
 }
 
 export interface ISPFullObj extends ISPTrainingDataObj, ISPYearGoalsObj, ISPBioDataObj {
+  username?: string;
   yearsTotal?: number;
   trainingTotal?: number;
   recommendation?: string;
@@ -61,6 +66,9 @@ export interface IUserData {
   displayName?: string;
   manager?: string;
   jobTitle?: string;
+  isUserHr? : boolean;
+  isUserManager? : boolean;
+  isUserGroupHead? : boolean;
 }
 
 export interface IPartialSPdata {

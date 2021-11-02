@@ -1,5 +1,9 @@
 import * as React from "react";
 import { Stack, Pivot, PivotItem } from "office-ui-fabric-react";
+//context
+import {UserContext} from "../HRpersonalDevPlan";
+// types
+import {IUserData} from "../../controller/serverTypes";
 
 export interface IProps {
   pageState: string;
@@ -7,6 +11,9 @@ export interface IProps {
 }
 
 const NavBar: React.FunctionComponent<IProps> = (props: IProps) => {
+  // user data
+  const userData:IUserData = React.useContext(UserContext);
+
   return (
     <Stack>
       <Pivot
@@ -16,8 +23,11 @@ const NavBar: React.FunctionComponent<IProps> = (props: IProps) => {
         }}
         selectedKey={props.pageState}
       >
-        <PivotItem headerText="Plan" itemKey="plan" />
-        <PivotItem headerText="New" itemKey="new" />
+        <PivotItem headerText="Your Plan" itemKey="plan" />
+        <PivotItem headerText="New Plan" itemKey="new" />
+        {userData.isUserHr && <PivotItem headerText="HR" itemKey="hr" />}
+        {userData.isUserManager && <PivotItem headerText="LineManager" itemKey="lineManager" />}
+        {userData.isUserGroupHead && <PivotItem headerText="GC" itemKey="gc" />}
       </Pivot>
     </Stack>
   );

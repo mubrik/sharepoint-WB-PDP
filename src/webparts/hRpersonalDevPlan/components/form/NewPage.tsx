@@ -183,6 +183,7 @@ const InputControl:React.FunctionComponent<IInputControlProps> = (
         iconProps={{iconName: 'ChromeBackMirrored' }}
       />
       <PrimaryButton text={"Finish"} onClick={handleFinishClick} disabled={!validState.valid}/>
+      <PrimaryButton text={"Test"} onClick={() => fetchServer.testing()}/>
     </Stack>
   );
 };
