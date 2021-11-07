@@ -5,15 +5,9 @@ import "@pnp/sp/profiles";
 import "@pnp/sp/site-groups";
 import "@pnp/sp/site-groups/web";
 // types
-import { IServer, IPartialSPdata, IUserData } from "./serverTypes";
+import { IServer, IPartialSPdata, IUserData,ISPFullObj } from "./serverTypes";
 import {IFormYearData, IFormTrainingData, IFormBioData, IFormUserData} from "../components/dataTypes";
 
-// const LIST_COLUMNS = [
-//   "User", "Week", "Status", "Projects", "Description",
-//   "Task", "Location", "FreshService", "Monday", "Tuesday",
-//   "Wednesday", "Thursday", "Friday", "Saturday", "Sunday",
-//   "Year", "Id"
-// ];
 
 /* handler for CRUD REST requests */
 class Server implements IServer {
@@ -22,25 +16,6 @@ class Server implements IServer {
 
   public testing = async () => {
     let groups = await sp.web.currentUser.groups();
-    // arr
-    // let grpArr: string[] = [];
-    // // loop groups
-    // groups.forEach(grpObj => grpArr.push(grpObj.Title));
-    // // vars
-    // let isUserHr = grpArr.includes("HR Approvers");
-    // let isUserManager = grpArr.includes("LineManagers Approvers");
-    // let isUserGroupHead = grpArr.includes("GroupHeads Approvers");
-    //
-    // const userProf = {
-    //   isUserHr,
-    //   isUserManager,
-    //   isUserGroupHead
-    // };
-
-    //get user object by Email
-    // const user = await sp.web.siteUsers();
-    // const user = await sp.web.siteUsers.getByEmail("Angela.Selekere@DANGOTE.COM").get();
-
     console.log(groups);
   }
 
@@ -104,11 +79,36 @@ class Server implements IServer {
       return this.fetch.web.lists.getByTitle("HR-PDP-SINGLE").items.select().filter("username eq '" + username + "'").get();
     } catch (err) {
       console.log(err);
+      return new Promise(res => res([])) as Promise<any[]>;
     }
   }
 
+  public getListById = (id: number):Promise<{} | ISPFullObj> => {
+    try {
+      return this.fetch.web.lists.getByTitle("HR-PDP-SINGLE").items.getById(id).get();
+    } catch (err) {
+      console.log(err);
+      return new Promise(res => res({})) as Promise<{}>;
+    }
+  }
+
+  public userDraftExists = (username: string): Promise<boolean> => {
+
+    return new Promise((resolve, _) => {
+      // get list
+      this.getUserList(username)
+      .then(list => {
+        if (list.length === 0) {
+          resolve(false);
+        } else {
+          resolve(true);
+        }
+      });
+    });
+  }
+
   public getHrList = (username: string) => {
-    console.log("hr", username);
+
     try {
       return this.fetch.web.lists.getByTitle("HR-PDP-SINGLE").items.select().filter("hrManager eq '" + username + "'").get();
     } catch (err) {
@@ -133,11 +133,8 @@ class Server implements IServer {
   }
 
   public createEntry =
-    async (userData: IFormUserData, yearData: IFormYearData, trainData: IFormTrainingData, stakeHolderData: IFormBioData) => {
-
-    // creat partial data
-    console.log(userData);
-
+    async (userData: IFormUserData, yearData: IFormYearData, trainData: IFormTrainingData, stakeHolderData: IFormBioData): Promise<boolean> => {
+    // partial data
     let _partial = this.processSharepointData(yearData, trainData);
     // mutate
     let _draft = {
@@ -148,10 +145,77 @@ class Server implements IServer {
 
     console.log(_draft);
     // get list, add item
-    const result = await this.fetch.web.lists.getByTitle("HR-PDP-SINGLE").items.add(_draft);
+    return new Promise((resolve, _) => {
 
-    console.log(result);
+      // list and add item
+      this.fetch.web.lists.getByTitle("HR-PDP-SINGLE").items.add(_draft)
+        .then(res => {
+          console.log(res);
+          resolve(true);
+        })
+        .catch(_res => {
+          resolve(false);
+        });
+    });
+  }
 
+  public updateEntry = async (id: number, param: object) => {
+
+    let list = this.fetch.web.lists.getByTitle("HR-PDP-SINGLE");
+
+    const i = await list.items.getById(id).update(param);
+
+    console.log(i);
+  }
+
+  public deleteEntry = async (id: number): Promise<boolean> =>  {
+
+    return new Promise((resolve, _) => {
+
+      this.fetch.web.lists.getByTitle("HR-PDP-SINGLE")
+        .items.getById(id).delete()
+        .then(_res => {
+          console.log(_res);
+          resolve(true);
+        })
+        .catch(_err => {
+          resolve(false);
+        });
+    });
+  }
+
+  public approveRejectEntry = async (id: number, userType: string, param: "approved"|"rejected") => {
+    //log
+    console.log(id, userType, param);
+    // get list
+    const list = this.fetch.web.lists.getByTitle("HR-PDP-SINGLE");
+    // get date
+    const _date = new Date();
+    // obj to update
+    const updateObj = {};
+    // mutate obj
+    switch(userType) {
+      case "hr" :
+        updateObj["hrManagerStatus"] = param;
+        updateObj["hrManagerDate"] = _date;
+        break;
+
+      case "lineManager" :
+        updateObj["lineManagerStatus"] = param;
+        updateObj["lineManagerDate"] = _date;
+        break;
+
+      case "gc" :
+        updateObj["gcioStatus"] = param;
+        updateObj["gcioDate"] = _date;
+        break;
+      default:
+        break;
+    }
+    // update
+    const i = await list.items.getById(id).update(updateObj);
+
+    console.log(i);
   }
 
   private processSharepointData = (yearData: IFormYearData, trainData: IFormTrainingData): IPartialSPdata => {

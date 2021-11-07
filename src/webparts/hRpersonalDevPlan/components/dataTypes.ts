@@ -22,6 +22,18 @@ export const initialValidObj = {
   state: {valid: false, msg: ""}
 };
 
+export const initialAppData:IAppData = {
+  draftAvailable: false,
+  viewPageMode: "normal",
+  linkedItemId: null
+};
+
+export interface IAppData {
+  draftAvailable: boolean;
+  viewPageMode: "normal"|"linked";
+  linkedItemId: number|null;
+}
+
 export interface IValidState {
   bioData: IValidationObj;
   yearData: IValidationObj;

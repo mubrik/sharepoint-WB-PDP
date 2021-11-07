@@ -12,25 +12,25 @@ import {UserContext} from "../HRpersonalDevPlan";
 import BioDataForm from "./BioDataForm";
 import TrainingForm from "./TrainingForm";
 import YearGoalForm from "./YearGoalForm";
-import {IInputControlProps} from "./propTypes";
+import {INewPageProps} from "./propTypes";
 import {IValidState, IFormUserData} from "../dataTypes";
 import {initialBioFormData,
   IFormYearData, initialValidObj,
-  IFormBioData, IFormTrainingData
+  IFormBioData, IFormTrainingData,
 } from "../dataTypes";
 // utils
 import ResponsivePrimaryButton from "../utils/ResponsiveButton";
 
 // new page
-const NewPage = (): JSX.Element => {
-
-
+const NewPage = ({appData, setAppData}: INewPageProps): JSX.Element => {
   // states
   const [bioData, setBioData] = React.useState<IFormBioData>(initialBioFormData);
   const [yearData, setYearData] = React.useState<IFormYearData>({});
   const [trainData, setTrainData] = React.useState<IFormTrainingData>({});
   const [pageState, setPageState] = React.useState(0);
   const [validState, setValidState] = React.useState<IValidState>(initialValidObj);
+  // context
+  const {displayName, ok, email, manager, jobTitle}:IUserData = React.useContext(UserContext);
   // effect for validation
   React.useEffect(() => {
     // valid
@@ -60,8 +60,12 @@ const NewPage = (): JSX.Element => {
     }
 
   },[validState.bioData, validState.trainData, validState.yearData]);
-  // context
-  const userData:IUserData = React.useContext(UserContext);
+  // effect for checking if draft exist
+  // React.useEffect(() => {
+  //   // get
+  //   fetchServer.userDraftExists(email)
+  //     .then(result => setDraftExists(result));
+  // }, [email]);
 
   // handler
   const handleInputChange = (name: string, _: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, newValue?: string) => {
@@ -74,68 +78,6 @@ const NewPage = (): JSX.Element => {
     });
   };
 
-  return (
-    <Stack tokens={{childrenGap: 8}}>
-    <Stack>
-      {
-        userData.ok ?
-        <Label>{userData.displayName} PERSONAL DEVELOPMENT PLAN </Label> :
-        <Label> PERSONAL DEVELOPMENT PLAN </Label>
-      }
-    </Stack>
-    <Stack>
-      {
-        pageState === 0 &&
-        <YearGoalForm
-          yearData={yearData}
-          setYearData={setYearData}
-          validState={validState.yearData}
-          setValidState={setValidState}
-        />
-      }
-      {
-        pageState === 1 &&
-        <BioDataForm
-          bioData={bioData}
-          _onChange={handleInputChange}
-          validState={validState.bioData}
-          setValidState={setValidState}
-        />
-      }
-      {
-        pageState === 2 &&
-        <TrainingForm
-          trainData={trainData}
-          setTrainData={setTrainData}
-          validState={validState.trainData}
-          setValidState={setValidState}
-        />
-      }
-    </Stack>
-    <Stack>
-      <InputControl
-        bioData={bioData}
-        trainData={trainData}
-        yearData={yearData}
-        pageState={pageState}
-        setPageState={setPageState}
-        validState={validState.state}
-        setValidState={setValidState}
-      />
-    </Stack>
-    </Stack>
-  );
-};
-
-
-
-const InputControl:React.FunctionComponent<IInputControlProps> = (
-  {pageState, setPageState, yearData, trainData, bioData, validState}:IInputControlProps) => {
-
-  // context
-  const userData:IUserData = React.useContext(UserContext);
-
-  // event handlers
   const handleNavigationClick = (name: string) => {
     switch(name) {
       case "prev":
@@ -154,9 +96,9 @@ const InputControl:React.FunctionComponent<IInputControlProps> = (
   const handleFinishClick = () => {
     // make user obj
     const userObj: IFormUserData = {
-      username: userData.email,
-      lineManager: userData.manager,
-      jobTitle: userData.jobTitle
+      username: email,
+      lineManager: manager,
+      jobTitle: jobTitle
     };
 
     // server req with data
@@ -165,27 +107,146 @@ const InputControl:React.FunctionComponent<IInputControlProps> = (
       yearData,
       trainData,
       bioData as IFormBioData,
-    );
+    )
+    .then(res => {
+      if (res) {
+        setAppData(prevValue => ({
+          ...prevValue,
+          draftAvailable: true
+        }));
+      }
+    });
   };
 
-  return(
-    <Stack horizontal horizontalAlign={"center"} tokens={{childrenGap: 7}}>
-      <ResponsivePrimaryButton
-        text={"Prev"}
-        disabled={pageState === 0}
-        onClick={() => handleNavigationClick("prev")}
-        iconProps={{iconName: 'ChromeBack' }}
-      />
-      <ResponsivePrimaryButton
-        text={"Next"}
-        disabled={pageState === 2}
-        onClick={() => handleNavigationClick("next")}
-        iconProps={{iconName: 'ChromeBackMirrored' }}
-      />
-      <PrimaryButton text={"Finish"} onClick={handleFinishClick} disabled={!validState.valid}/>
-      <PrimaryButton text={"Test"} onClick={() => fetchServer.testing()}/>
+  return (
+    <Stack tokens={{childrenGap: 8}}>
+      <Stack>
+        {
+          ok ?
+          <Label>{displayName} PERSONAL DEVELOPMENT PLAN </Label> :
+          <Label> PERSONAL DEVELOPMENT PLAN </Label>
+        }
+      </Stack>
+      {
+        appData.draftAvailable &&
+        <div> You have a plan created</div>
+      }
+      {
+        !appData.draftAvailable &&
+        <>
+          <Stack>
+            {
+              pageState === 0 &&
+              <YearGoalForm
+                yearData={yearData}
+                setYearData={setYearData}
+                validState={validState.yearData}
+                setValidState={setValidState}
+              />
+            }
+            {
+              pageState === 1 &&
+              <BioDataForm
+                bioData={bioData}
+                _onChange={handleInputChange}
+                validState={validState.bioData}
+                setValidState={setValidState}
+              />
+            }
+            {
+              pageState === 2 &&
+              <TrainingForm
+                trainData={trainData}
+                setTrainData={setTrainData}
+                validState={validState.trainData}
+                setValidState={setValidState}
+              />
+            }
+          </Stack>
+          <Stack>
+            <Stack horizontal horizontalAlign={"center"} tokens={{childrenGap: 7}}>
+              <ResponsivePrimaryButton
+                text={"Prev"}
+                disabled={pageState === 0}
+                onClick={() => handleNavigationClick("prev")}
+                iconProps={{iconName: 'ChromeBack' }}
+              />
+              <ResponsivePrimaryButton
+                text={"Next"}
+                disabled={pageState === 2}
+                onClick={() => handleNavigationClick("next")}
+                iconProps={{iconName: 'ChromeBackMirrored' }}
+              />
+              <PrimaryButton text={"Finish"} onClick={handleFinishClick} disabled={!validState.state.valid}/>
+              <PrimaryButton text={"Test"} onClick={() => fetchServer.testing()}/>
+            </Stack>
+          </Stack>
+        </>
+      }
+
     </Stack>
   );
 };
+
+
+
+// const InputControl:React.FunctionComponent<IInputControlProps> = (
+//   {pageState, setPageState, yearData, trainData, bioData, validState}:IInputControlProps) => {
+//
+//   // context
+//   const userData:IUserData = React.useContext(UserContext);
+//
+//   // event handlers
+//   const handleNavigationClick = (name: string) => {
+//     switch(name) {
+//       case "prev":
+//         // minus
+//         setPageState(pageState - 1);
+//         break;
+//       case "next":
+//         // add
+//         setPageState(pageState + 1);
+//         break;
+//       default:
+//         break;
+//     }
+//   };
+//
+//   const handleFinishClick = () => {
+//     // make user obj
+//     const userObj: IFormUserData = {
+//       username: userData.email,
+//       lineManager: userData.manager,
+//       jobTitle: userData.jobTitle
+//     };
+//
+//     // server req with data
+//     fetchServer.createEntry(
+//       userObj,
+//       yearData,
+//       trainData,
+//       bioData as IFormBioData,
+//     );
+//   };
+//
+//   return(
+//     <Stack horizontal horizontalAlign={"center"} tokens={{childrenGap: 7}}>
+//       <ResponsivePrimaryButton
+//         text={"Prev"}
+//         disabled={pageState === 0}
+//         onClick={() => handleNavigationClick("prev")}
+//         iconProps={{iconName: 'ChromeBack' }}
+//       />
+//       <ResponsivePrimaryButton
+//         text={"Next"}
+//         disabled={pageState === 2}
+//         onClick={() => handleNavigationClick("next")}
+//         iconProps={{iconName: 'ChromeBackMirrored' }}
+//       />
+//       <PrimaryButton text={"Finish"} onClick={handleFinishClick} disabled={!validState.valid}/>
+//       // <PrimaryButton text={"Test"} onClick={() => fetchServer.testing()}/>
+//     </Stack>
+//   );
+// };
 
 export default NewPage;

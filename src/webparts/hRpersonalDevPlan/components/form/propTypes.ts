@@ -1,4 +1,8 @@
-import {IFormTrainingData, IFormYearData, IFormBioData, IValidState, IValidationObj} from "../dataTypes";
+import {
+  IFormTrainingData, IFormYearData,
+  IFormBioData, IValidState,
+  IValidationObj, IAppData
+} from "../dataTypes";
 
 export const initialValidObj = {
   bioData: {valid:false, msg: ""},
@@ -6,6 +10,11 @@ export const initialValidObj = {
   trainData: {valid:false, msg: ""},
   state: {valid: false, msg: ""}
 };
+
+export interface INewPageProps {
+  appData: IAppData;
+  setAppData: React.Dispatch<React.SetStateAction<IAppData>>;
+}
 
 export interface IBaseInputProps {
   validState: IValidationObj;

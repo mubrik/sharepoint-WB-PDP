@@ -23,11 +23,11 @@ const NavBar: React.FunctionComponent<IProps> = (props: IProps) => {
         }}
         selectedKey={props.pageState}
       >
-        <PivotItem headerText="Your Plan" itemKey="plan" />
+        <PivotItem headerText="View Plan" itemKey="plan" />
         <PivotItem headerText="New Plan" itemKey="new" />
         {userData.isUserHr && <PivotItem headerText="HR" itemKey="hr" />}
-        {userData.isUserManager && <PivotItem headerText="LineManager" itemKey="lineManager" />}
-        {userData.isUserGroupHead && <PivotItem headerText="GC" itemKey="gc" />}
+        {userData.isUserManager && <PivotItem headerText="Line Manager" itemKey="lineManager" />}
+        {userData.isUserGroupHead && <PivotItem headerText="Group Chief" itemKey="gc" />}
       </Pivot>
     </Stack>
   );

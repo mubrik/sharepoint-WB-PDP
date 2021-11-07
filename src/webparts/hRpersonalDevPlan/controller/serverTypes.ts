@@ -6,7 +6,9 @@ export interface IServer {
   fetch: typeof sp;
   testing: () => Promise<void>;
   getUser: () => Promise<IUserData>;
+  userDraftExists: (username: string) => Promise<boolean>;
   getUserList: (username: string) => Promise<any[]| ISPFullObj[]>;
+  getListById: (id: number) => Promise<{}| ISPFullObj>;
   getHrList: (username: string) => Promise<any[]| ISPFullObj[]>;
   getLineManagerList: (username: string) => Promise<any[]| ISPFullObj[]>;
   getGroupHeadList: (username: string) => Promise<any[]| ISPFullObj[]>;
@@ -14,7 +16,10 @@ export interface IServer {
     userData: IFormUserData,
     yearData: IFormYearData,
     trainData: IFormTrainingData,
-    stakeHolderData: IFormBioData) => void;
+    stakeHolderData: IFormBioData) => Promise<boolean>;
+  updateEntry: (id: number, param: object) => void;
+  deleteEntry: (id: number) => Promise<boolean>;
+  approveRejectEntry: (id: number, userType: string, param: "approved"|"rejected") => void;
 }
 
 export interface ISPBioDataObj {
@@ -51,12 +56,16 @@ export interface ISPYearGoalsObj{
 }
 
 export interface ISPFullObj extends ISPTrainingDataObj, ISPYearGoalsObj, ISPBioDataObj {
+  Id?: number;
   username?: string;
   yearsTotal?: number;
   trainingTotal?: number;
   recommendation?: string;
   jobTitle?: string;
   lineManager?: string;
+  hrManagerStatus?: string;
+  lineManagerStatus?: string;
+  gcioStatus?: string;
 }
 
 export interface IUserData {
