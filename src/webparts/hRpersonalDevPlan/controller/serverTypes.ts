@@ -4,22 +4,22 @@ import {IFormYearData, IFormTrainingData, IFormBioData, IFormUserData} from "../
 /* interface */
 export interface IServer {
   fetch: typeof sp;
-  testing: () => Promise<void>;
-  getUser: () => Promise<IUserData>;
-  userDraftExists: (username: string) => Promise<boolean>;
-  getUserList: (username: string) => Promise<any[]| ISPFullObj[]>;
-  getListById: (id: number) => Promise<{}| ISPFullObj>;
-  getHrList: (username: string) => Promise<any[]| ISPFullObj[]>;
-  getLineManagerList: (username: string) => Promise<any[]| ISPFullObj[]>;
-  getGroupHeadList: (username: string) => Promise<any[]| ISPFullObj[]>;
-  createEntry: (
+  testing(): Promise<void>;
+  getUser(): Promise<IUserData>;
+  getUserList(username: string):Promise<ISPFullObj[]>;
+  getListById(id: number): Promise<ISPFullObj>;
+  userDraftExists(username: string): Promise<boolean>;
+  getHrList(username: string): Promise<ISPFullObj[]>;
+  getLineManagerList(username: string): Promise<ISPFullObj[]>;
+  getGroupHeadList(username: string): Promise<ISPFullObj[]>;
+  createEntry(
     userData: IFormUserData,
     yearData: IFormYearData,
     trainData: IFormTrainingData,
-    stakeHolderData: IFormBioData) => Promise<boolean>;
-  updateEntry: (id: number, param: object) => void;
-  deleteEntry: (id: number) => Promise<boolean>;
-  approveRejectEntry: (id: number, userType: string, param: "approved"|"rejected") => void;
+    stakeHolderData: IFormBioData): Promise<boolean>;
+  updateEntry(id: number, param: object): Promise<boolean>;
+  deleteEntry(id: number): Promise<boolean>;
+  approveRejectEntry(id: number, userType: string, param: "approved"|"rejected"): Promise<boolean>;
 }
 
 export interface ISPBioDataObj {
@@ -69,7 +69,7 @@ export interface ISPFullObj extends ISPTrainingDataObj, ISPYearGoalsObj, ISPBioD
 }
 
 export interface IUserData {
-  ok: boolean;
+  ok?: boolean;
   id?: number;
   email?: string;
   displayName?: string;

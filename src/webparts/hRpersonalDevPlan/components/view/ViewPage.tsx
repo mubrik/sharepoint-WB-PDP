@@ -4,6 +4,7 @@ import {Stack,
 } from "office-ui-fabric-react";
 // contexts
 import {UserContext} from "../HRpersonalDevPlan";
+import {ErrorModalContext} from "../error/ErrorModal";
 // types
 import {IViewStateData, IViewPageProps} from "./propTypes";
 import {fetchServer} from "../../controller/server";
@@ -32,6 +33,9 @@ const ViewPage = ({appData, setAppData}: IViewPageProps):JSX.Element => {
     callback: () => {},
     dtype: "close"
   });
+  // context
+  const setErrorState = React.useContext(ErrorModalContext);
+
   // use effect for getting data
   React.useEffect(() => {
     if (stateData.status === "loaded") {
@@ -67,7 +71,9 @@ const ViewPage = ({appData, setAppData}: IViewPageProps):JSX.Element => {
             }));
           }
         })
-        .catch(err => console.log(err));
+        .catch(error => {
+          setErrorState({hasError: true, errorMsg:"Error getting data, try again", errorObj: error});
+        });
     } else {
       fetchServer.getListById(appData.linkedItemId)
         .then(result => {
@@ -77,6 +83,9 @@ const ViewPage = ({appData, setAppData}: IViewPageProps):JSX.Element => {
             isDataAvail: true,
             status: "loaded"
           }));
+        })
+        .catch(error => {
+          setErrorState({hasError: true, errorMsg:"Error getting data, try again", errorObj: error});
         });
     }
   }, [stateData.status, appData.viewPageMode]);
@@ -107,6 +116,9 @@ const ViewPage = ({appData, setAppData}: IViewPageProps):JSX.Element => {
             status: "idle"
           });
         }
+      })
+      .catch(error => {
+        setErrorState({hasError: true, errorMsg:"Error deleting item", errorObj: error});
       });
   };
 

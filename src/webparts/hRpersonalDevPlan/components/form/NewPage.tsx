@@ -8,6 +8,7 @@ import {fetchServer} from "../../controller/server";
 import {IUserData} from "../../controller/serverTypes";
 // context
 import {UserContext} from "../HRpersonalDevPlan";
+import {ErrorModalContext} from "../error/ErrorModal";
 // components and types
 import BioDataForm from "./BioDataForm";
 import TrainingForm from "./TrainingForm";
@@ -31,6 +32,7 @@ const NewPage = ({appData, setAppData}: INewPageProps): JSX.Element => {
   const [validState, setValidState] = React.useState<IValidState>(initialValidObj);
   // context
   const {displayName, ok, email, manager, jobTitle}:IUserData = React.useContext(UserContext);
+  const setErrorState = React.useContext(ErrorModalContext);
   // effect for validation
   React.useEffect(() => {
     // valid
@@ -60,12 +62,6 @@ const NewPage = ({appData, setAppData}: INewPageProps): JSX.Element => {
     }
 
   },[validState.bioData, validState.trainData, validState.yearData]);
-  // effect for checking if draft exist
-  // React.useEffect(() => {
-  //   // get
-  //   fetchServer.userDraftExists(email)
-  //     .then(result => setDraftExists(result));
-  // }, [email]);
 
   // handler
   const handleInputChange = (name: string, _: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, newValue?: string) => {
@@ -115,6 +111,9 @@ const NewPage = ({appData, setAppData}: INewPageProps): JSX.Element => {
           draftAvailable: true
         }));
       }
+    })
+    .catch(error => {
+      setErrorState({hasError: true, errorMsg:"Error creating item", errorObj: error});
     });
   };
 
@@ -178,7 +177,11 @@ const NewPage = ({appData, setAppData}: INewPageProps): JSX.Element => {
                 iconProps={{iconName: 'ChromeBackMirrored' }}
               />
               <PrimaryButton text={"Finish"} onClick={handleFinishClick} disabled={!validState.state.valid}/>
-              <PrimaryButton text={"Test"} onClick={() => fetchServer.testing()}/>
+              <PrimaryButton text={"Test"} onClick={ () => {
+                fetchServer.getUserList(email)
+                  .then(res => console.log(res))
+                  .catch(_ => setErrorState({hasError: true, errorMsg:"hi i'm an error"}));
+              }}/>
             </Stack>
           </Stack>
         </>
@@ -187,66 +190,5 @@ const NewPage = ({appData, setAppData}: INewPageProps): JSX.Element => {
     </Stack>
   );
 };
-
-
-
-// const InputControl:React.FunctionComponent<IInputControlProps> = (
-//   {pageState, setPageState, yearData, trainData, bioData, validState}:IInputControlProps) => {
-//
-//   // context
-//   const userData:IUserData = React.useContext(UserContext);
-//
-//   // event handlers
-//   const handleNavigationClick = (name: string) => {
-//     switch(name) {
-//       case "prev":
-//         // minus
-//         setPageState(pageState - 1);
-//         break;
-//       case "next":
-//         // add
-//         setPageState(pageState + 1);
-//         break;
-//       default:
-//         break;
-//     }
-//   };
-//
-//   const handleFinishClick = () => {
-//     // make user obj
-//     const userObj: IFormUserData = {
-//       username: userData.email,
-//       lineManager: userData.manager,
-//       jobTitle: userData.jobTitle
-//     };
-//
-//     // server req with data
-//     fetchServer.createEntry(
-//       userObj,
-//       yearData,
-//       trainData,
-//       bioData as IFormBioData,
-//     );
-//   };
-//
-//   return(
-//     <Stack horizontal horizontalAlign={"center"} tokens={{childrenGap: 7}}>
-//       <ResponsivePrimaryButton
-//         text={"Prev"}
-//         disabled={pageState === 0}
-//         onClick={() => handleNavigationClick("prev")}
-//         iconProps={{iconName: 'ChromeBack' }}
-//       />
-//       <ResponsivePrimaryButton
-//         text={"Next"}
-//         disabled={pageState === 2}
-//         onClick={() => handleNavigationClick("next")}
-//         iconProps={{iconName: 'ChromeBackMirrored' }}
-//       />
-//       <PrimaryButton text={"Finish"} onClick={handleFinishClick} disabled={!validState.valid}/>
-//       // <PrimaryButton text={"Test"} onClick={() => fetchServer.testing()}/>
-//     </Stack>
-//   );
-// };
 
 export default NewPage;

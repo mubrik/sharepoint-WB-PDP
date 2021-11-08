@@ -6,6 +6,7 @@ import {Stack, DefaultButton,
  } from "office-ui-fabric-react";
 // context
 import {UserContext} from "../HRpersonalDevPlan";
+import {ErrorModalContext} from "../error/ErrorModal";
 // server
 import {fetchServer} from "../../controller/server";
 // types
@@ -49,11 +50,13 @@ const ApprovalPage = ({userType, setAppData, setMainPageState}:IApprovalProps): 
   // context data
   const {email}: IUserData =
     React.useContext(UserContext);
+  const setErrorState = React.useContext(ErrorModalContext);
+
   // effect to fecth data
   React.useEffect(() => {
     // var
     let result:Promise<any[]>;
-
+    // call method based on type of user
     switch (userType) {
       case "hr":
         // do something
@@ -71,18 +74,27 @@ const ApprovalPage = ({userType, setAppData, setMainPageState}:IApprovalProps): 
         break;
     }
     // work on result
-    result.then(res => {
-      console.log(res);
-      setStateData({
-        data: res,
-        status: "loaded"
+    result
+      .then(res => {
+        console.log(res);
+        setStateData({
+          data: res,
+          status: "loaded"
+        });
+      })
+      .catch(error => {
+        setErrorState({hasError: true, errorMsg:"Error loading list", errorObj: error});
       });
-    });
   }, []);
 
   // handlers
   const handleApprovalAction = (id: number, param: "approved"|"rejected") => {
-    fetchServer.approveRejectEntry(id, userType, param);
+    // call server
+    fetchServer.approveRejectEntry(id, userType, param)
+    .then(_ => console.log("item approval updated"))
+    .catch(error => {
+      setErrorState({hasError: true, errorMsg:"Error Approving Item", errorObj: error});
+    });
   };
 
   const handleViewClick = (id: number) => {
