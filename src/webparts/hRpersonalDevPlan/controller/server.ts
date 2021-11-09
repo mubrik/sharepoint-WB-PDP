@@ -20,23 +20,22 @@ class Server implements IServer {
   public constructor (context:WebPartContext ) {
     this.context = context ? context : null;
   }
-
-  public getUserBioList = async () => {
+  private noContext = async () => {
     if (!this.context) {
       return new Promise(res => {
         res([]);
       }) as Promise<[]>;
     }
+  }
+
+  public getUserBioList = async () => {
+    this.noContext();
 
     return this.fetch.web.lists.getByTitle("HR-PDP-TRAINING").items.get();
   }
 
   public getUserTrainingList = () => {
-    if (!this.context) {
-      return new Promise(res => {
-        res([]);
-      }) as Promise<[]>;
-    }
+    this.noContext();
 
     return this.fetch.web.lists.getByTitle("HR-PDP1").items.select().filter("User eq '" + this.context.pageContext.user.loginName + "'").get();
   }
