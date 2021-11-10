@@ -25,9 +25,9 @@ const NavBar: React.FunctionComponent<IProps> = (props: IProps) => {
       >
         <PivotItem headerText="View Plan" itemKey="plan" />
         <PivotItem headerText="New Plan" itemKey="new" />
-        {userData.isUserHr && <PivotItem headerText="HR" itemKey="hr" />}
-        {userData.isUserManager && <PivotItem headerText="Line Manager" itemKey="lineManager" />}
-        {userData.isUserGroupHead && <PivotItem headerText="Group Chief" itemKey="gc" />}
+        {userData?.isUserHr && <PivotItem headerText="HR" itemKey="hr" />}
+        {userData?.isUserManager && <PivotItem headerText="Line Manager" itemKey="lineManager" />}
+        {userData?.isUserGroupHead && <PivotItem headerText="Group Chief" itemKey="gc" />}
       </Pivot>
     </Stack>
   );

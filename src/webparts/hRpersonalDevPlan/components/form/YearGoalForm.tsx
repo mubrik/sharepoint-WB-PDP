@@ -5,7 +5,6 @@ import {TextField,
    Dropdown, mergeStyleSets,
    IDropdownOption
  } from "office-ui-fabric-react";
-
 // components and types
 import {IYearControlProps,} from "./propTypes";
 import ValidationDisplay from "../utils/ValidationDisplay";

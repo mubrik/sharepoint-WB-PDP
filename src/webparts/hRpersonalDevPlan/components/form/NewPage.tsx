@@ -8,7 +8,6 @@ import {fetchServer} from "../../controller/server";
 import {IUserData} from "../../controller/serverTypes";
 // context
 import {UserContext} from "../HRpersonalDevPlan";
-import {ErrorModalContext} from "../error/ErrorModal";
 // components and types
 import BioDataForm from "./BioDataForm";
 import TrainingForm from "./TrainingForm";
@@ -19,6 +18,8 @@ import {initialBioFormData,
   IFormYearData, initialValidObj,
   IFormBioData, IFormTrainingData,
 } from "../dataTypes";
+// notification
+import useNotificationHook from "../notification/hook";
 // utils
 import ResponsivePrimaryButton from "../utils/ResponsiveButton";
 
@@ -31,8 +32,9 @@ const NewPage = ({appData, setAppData}: INewPageProps): JSX.Element => {
   const [pageState, setPageState] = React.useState(0);
   const [validState, setValidState] = React.useState<IValidState>(initialValidObj);
   // context
-  const {displayName, ok, email, manager, jobTitle}:IUserData = React.useContext(UserContext);
-  const setErrorState = React.useContext(ErrorModalContext);
+  const {displayName, email, manager, jobTitle}:IUserData = React.useContext(UserContext);
+  // notify
+  const setNotification = useNotificationHook();
   // effect for validation
   React.useEffect(() => {
     // valid
@@ -110,10 +112,11 @@ const NewPage = ({appData, setAppData}: INewPageProps): JSX.Element => {
           ...prevValue,
           draftAvailable: true
         }));
+        setNotification({show: true, isError: false, msg:"Draft created successfully"});
       }
     })
     .catch(error => {
-      setErrorState({hasError: true, errorMsg:"Error creating item", errorObj: error});
+      setNotification({show: true, isError: true, msg:"Error creating item", errorObj: error});
     });
   };
 
@@ -121,7 +124,7 @@ const NewPage = ({appData, setAppData}: INewPageProps): JSX.Element => {
     <Stack tokens={{childrenGap: 8}}>
       <Stack>
         {
-          ok ?
+          displayName ?
           <Label>{displayName} PERSONAL DEVELOPMENT PLAN </Label> :
           <Label> PERSONAL DEVELOPMENT PLAN </Label>
         }
@@ -177,11 +180,13 @@ const NewPage = ({appData, setAppData}: INewPageProps): JSX.Element => {
                 iconProps={{iconName: 'ChromeBackMirrored' }}
               />
               <PrimaryButton text={"Finish"} onClick={handleFinishClick} disabled={!validState.state.valid}/>
+              /**
               <PrimaryButton text={"Test"} onClick={ () => {
                 fetchServer.getUserList(email)
                   .then(res => console.log(res))
-                  .catch(_ => setErrorState({hasError: true, errorMsg:"hi i'm an error"}));
+                  .catch(_ => setNotification({show: true, isError: true, msg:"Hi error"}));
               }}/>
+              */
             </Stack>
           </Stack>
         </>

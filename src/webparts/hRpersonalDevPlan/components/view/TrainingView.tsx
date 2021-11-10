@@ -6,8 +6,8 @@ import {
 } from "office-ui-fabric-react";
 // server
 import {fetchServer} from "../../controller/server";
-// context
-import {ErrorModalContext} from "../error/ErrorModal";
+// notification
+import useNotificationHook from "../notification/hook";
 // prop type
 import {ITrainingCompProps} from "./propTypes";
 interface ITrainDropdown extends IDropdownOption {
@@ -48,8 +48,8 @@ const TrainingView  = ({viewData, setViewStateData, appData}:ITrainingCompProps)
   const [trainOptions, setTrainOptions] = React.useState<ITrainDropdown[]>([]);
   const [selectedTraining, setSelectedTraining] = React.useState<null|ITrainDropdown>(null);
   const [statusValue, setStatusValue] = React.useState("");
-  // context
-  const setErrorState = React.useContext(ErrorModalContext);
+  // notify
+  const setNotification = useNotificationHook();
 
   // effect to set training options
   React.useEffect(() => {
@@ -104,16 +104,19 @@ const TrainingView  = ({viewData, setViewStateData, appData}:ITrainingCompProps)
     // call server
     console.log(updateItem);
     fetchServer.updateEntry(viewData.Id, updateItem)
-      .then(result => console.log(result, "training updated"))
+      .then(_ => {
+        setNotification({show: true, isError: false, msg:"Training updated successfully"});
+        // update view
+        setViewStateData(prevValue => ({
+          ...prevValue,
+          status: "idle"
+        }));
+      })
       .catch(error => {
-        setErrorState({hasError: true, errorMsg:"Error updating training status", errorObj: error});
+        setNotification({show: true, isError: true, msg:"Error updating training status", errorObj: error});
       });
 
-    // update view
-    setViewStateData(prevValue => ({
-      ...prevValue,
-      status: "idle"
-    }));
+
   };
 
   return (

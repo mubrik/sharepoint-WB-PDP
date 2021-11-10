@@ -10,7 +10,6 @@ import ValidationDisplay from "../utils/ValidationDisplay";
 // data
 import {initialTrainingFormData} from "../dataTypes";
 
-
 // styles
 const gridCLasses = mergeStyleSets({
   mainGrid: {

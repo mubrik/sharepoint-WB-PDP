@@ -8,8 +8,8 @@ import NewPage from "./form/NewPage";
 import ViewPage from "./view/ViewPage";
 import ApprovalPage from "./approval/ApprovalPage";
 import ErrorBoundary from "./error/ErrorBoundary";
-import ErrorModal from "./error/ErrorModal";
-import {ErrorModalContext} from "./error/ErrorModal";
+import NotificationBar from "./notification/NotificationBar";
+import useNotificationHook from "./notification/hook";
 // types
 import {IUserData} from "../controller/serverTypes";
 import {fetchServer} from "../controller/server";
@@ -24,10 +24,10 @@ const MainPage:React.FunctionComponent<IHRpersonalDevPlanProps> = () => {
 
   // page state
   const [pageState, setPageState] = React.useState("new");
-  const [userData, setUserData] = React.useState<IUserData>({ok: false});
+  const [userData, setUserData] = React.useState<IUserData>({});
   const [appData, setAppData] = React.useState<IAppData>(initialAppData);
-  // context
-  const setErrorState = React.useContext(ErrorModalContext);
+  // notify
+  const setNotification = useNotificationHook();
 
   // webpart width
   React.useEffect(() => {
@@ -47,12 +47,12 @@ const MainPage:React.FunctionComponent<IHRpersonalDevPlanProps> = () => {
       });
     })
     .catch(error => {
-      setErrorState({hasError: true, errorMsg:"Error getting data, Network?", errorObj: error});
+      setNotification({show: true, isError: true, msg:"Error getting user, Network?", errorObj: error});
     });
   }, []);
   // effect for app data segtting
   React.useEffect(() => {
-    if (userData.ok) {
+    if ("email" in userData) {
       // get
       fetchServer.userDraftExists(userData.email)
         .then(result => setAppData(prevValue => ({
@@ -64,7 +64,7 @@ const MainPage:React.FunctionComponent<IHRpersonalDevPlanProps> = () => {
 
   return (
     <ErrorBoundary>
-    <ErrorModal>
+    <NotificationBar>
       <Stack>
         <UserContext.Provider value={userData}>
           <NavBar pageState={pageState} setPageState={setPageState}/>
@@ -108,7 +108,7 @@ const MainPage:React.FunctionComponent<IHRpersonalDevPlanProps> = () => {
           }
         </UserContext.Provider>
       </Stack>
-    </ErrorModal>
+    </NotificationBar>
     </ErrorBoundary>
   );
 };

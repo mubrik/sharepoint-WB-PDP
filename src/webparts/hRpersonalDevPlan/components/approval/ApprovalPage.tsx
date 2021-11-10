@@ -6,7 +6,8 @@ import {Stack, DefaultButton,
  } from "office-ui-fabric-react";
 // context
 import {UserContext} from "../HRpersonalDevPlan";
-import {ErrorModalContext} from "../error/ErrorModal";
+// notification
+import useNotificationHook from "../notification/hook";
 // server
 import {fetchServer} from "../../controller/server";
 // types
@@ -50,7 +51,8 @@ const ApprovalPage = ({userType, setAppData, setMainPageState}:IApprovalProps): 
   // context data
   const {email}: IUserData =
     React.useContext(UserContext);
-  const setErrorState = React.useContext(ErrorModalContext);
+  // notify
+  const setNotification = useNotificationHook();
 
   // effect to fecth data
   React.useEffect(() => {
@@ -83,7 +85,7 @@ const ApprovalPage = ({userType, setAppData, setMainPageState}:IApprovalProps): 
         });
       })
       .catch(error => {
-        setErrorState({hasError: true, errorMsg:"Error loading list", errorObj: error});
+        setNotification({show: true, isError: true, msg:"Error loading list", errorObj: error});
       });
   }, []);
 
@@ -91,9 +93,9 @@ const ApprovalPage = ({userType, setAppData, setMainPageState}:IApprovalProps): 
   const handleApprovalAction = (id: number, param: "approved"|"rejected") => {
     // call server
     fetchServer.approveRejectEntry(id, userType, param)
-    .then(_ => console.log("item approval updated"))
+    .then(_ => setNotification({show: true, isError: false, msg:"Item status updated"}))
     .catch(error => {
-      setErrorState({hasError: true, errorMsg:"Error Approving Item", errorObj: error});
+      setNotification({show: true, isError: true, msg:"Error Approving Item", errorObj: error});
     });
   };
 

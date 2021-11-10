@@ -4,7 +4,6 @@ import {Stack,
 } from "office-ui-fabric-react";
 // contexts
 import {UserContext} from "../HRpersonalDevPlan";
-import {ErrorModalContext} from "../error/ErrorModal";
 // types
 import {IViewStateData, IViewPageProps} from "./propTypes";
 import {fetchServer} from "../../controller/server";
@@ -14,6 +13,8 @@ import YearView from "./YearView";
 import TrainingView from "./TrainingView";
 import BioView from "./BioView";
 import DialogOption from '../utils/DialogOption';
+// notification
+import useNotificationHook from "../notification/hook";
 
 const initialViewStateData: IViewStateData = {
   data: {},
@@ -33,8 +34,8 @@ const ViewPage = ({appData, setAppData}: IViewPageProps):JSX.Element => {
     callback: () => {},
     dtype: "close"
   });
-  // context
-  const setErrorState = React.useContext(ErrorModalContext);
+  // notify
+  const setNotification = useNotificationHook();
 
   // use effect for getting data
   React.useEffect(() => {
@@ -72,7 +73,7 @@ const ViewPage = ({appData, setAppData}: IViewPageProps):JSX.Element => {
           }
         })
         .catch(error => {
-          setErrorState({hasError: true, errorMsg:"Error getting data, try again", errorObj: error});
+          setNotification({show: true, isError: true, msg:"Error getting data, try again", errorObj: error});
         });
     } else {
       fetchServer.getListById(appData.linkedItemId)
@@ -85,7 +86,7 @@ const ViewPage = ({appData, setAppData}: IViewPageProps):JSX.Element => {
           }));
         })
         .catch(error => {
-          setErrorState({hasError: true, errorMsg:"Error getting data, try again", errorObj: error});
+          setNotification({show: true, isError: true, msg:"Error getting data, try again", errorObj: error});
         });
     }
   }, [stateData.status, appData.viewPageMode]);
@@ -115,10 +116,11 @@ const ViewPage = ({appData, setAppData}: IViewPageProps):JSX.Element => {
             isDataAvail: false,
             status: "idle"
           });
+          setNotification({show: true, isError: false, msg:"Draft deleted"});
         }
       })
       .catch(error => {
-        setErrorState({hasError: true, errorMsg:"Error deleting item", errorObj: error});
+        setNotification({show: true, isError: true, msg:"Error deleting item", errorObj: error});
       });
   };
 
