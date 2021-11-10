@@ -9,6 +9,7 @@ import ViewPage from "./view/ViewPage";
 import ApprovalPage from "./approval/ApprovalPage";
 import ErrorBoundary from "./error/ErrorBoundary";
 import NotificationBar from "./notification/NotificationBar";
+import AboutPage from "./about/AboutPage";
 import useNotificationHook from "./notification/hook";
 // types
 import {IUserData} from "../controller/serverTypes";
@@ -16,8 +17,8 @@ import {fetchServer} from "../controller/server";
 import {initialAppData, IAppData} from "./dataTypes";
 
 // context for user data
-export const UserContext = React.createContext(null);
-export const AppContext = React.createContext(null);
+export const UserContext = React.createContext<IUserData>(null);
+export const AppContext = React.createContext<IAppData>(null);
 
 // main component
 const MainPage:React.FunctionComponent<IHRpersonalDevPlanProps> = () => {
@@ -64,8 +65,8 @@ const MainPage:React.FunctionComponent<IHRpersonalDevPlanProps> = () => {
 
   return (
     <ErrorBoundary>
-    <NotificationBar>
-      <Stack>
+    <Stack tokens={{childrenGap: 8}}>
+      <NotificationBar>
         <UserContext.Provider value={userData}>
           <NavBar pageState={pageState} setPageState={setPageState}/>
           {
@@ -81,6 +82,10 @@ const MainPage:React.FunctionComponent<IHRpersonalDevPlanProps> = () => {
               appData={appData}
               setAppData={setAppData}
             />
+          }
+          {
+            pageState === "about" &&
+            <AboutPage/>
           }
           {
             pageState === "hr" &&
@@ -107,8 +112,8 @@ const MainPage:React.FunctionComponent<IHRpersonalDevPlanProps> = () => {
             />
           }
         </UserContext.Provider>
-      </Stack>
-    </NotificationBar>
+      </NotificationBar>
+    </Stack>
     </ErrorBoundary>
   );
 };

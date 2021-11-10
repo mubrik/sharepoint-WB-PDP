@@ -28,11 +28,26 @@ const classes = mergeStyleSets({
     padding: "5px",
     margin: "2px 2px"
   },
-  itemStatus: {
+  itemStatusApproved: {
     padding: "5px",
     margin: "2px 2px",
     borderLeft: "1px solid black",
     borderRight: "1px solid black",
+    color: "green"
+  },
+  itemStatusPending: {
+    padding: "5px",
+    margin: "2px 2px",
+    borderLeft: "1px solid black",
+    borderRight: "1px solid black",
+    color: "#117799"
+  },
+  itemStatusRejected: {
+    padding: "5px",
+    margin: "2px 2px",
+    borderLeft: "1px solid black",
+    borderRight: "1px solid black",
+    color: "red"
   },
   itemButtonContainer: {
     display: "flex",
@@ -53,7 +68,6 @@ const ApprovalPage = ({userType, setAppData, setMainPageState}:IApprovalProps): 
     React.useContext(UserContext);
   // notify
   const setNotification = useNotificationHook();
-
   // effect to fecth data
   React.useEffect(() => {
     // var
@@ -78,7 +92,6 @@ const ApprovalPage = ({userType, setAppData, setMainPageState}:IApprovalProps): 
     // work on result
     result
       .then(res => {
-        console.log(res);
         setStateData({
           data: res,
           status: "loaded"
@@ -90,7 +103,7 @@ const ApprovalPage = ({userType, setAppData, setMainPageState}:IApprovalProps): 
   }, []);
 
   // handlers
-  const handleApprovalAction = (id: number, param: "approved"|"rejected") => {
+  const handleApprovalAction = (id: number, param: "Approved"|"Rejected") => {
     // call server
     fetchServer.approveRejectEntry(id, userType, param)
     .then(_ => setNotification({show: true, isError: false, msg:"Item status updated"}))
@@ -112,42 +125,49 @@ const ApprovalPage = ({userType, setAppData, setMainPageState}:IApprovalProps): 
 
   // generate list item
   const generateApprovalItem = (param: ISPFullObj, index: number): JSX.Element => {
+    // classes
+    const statusClass = {
+      Approved: classes.itemStatusApproved,
+      Pending: classes.itemStatusPending,
+      Rejected: classes.itemStatusRejected,
+    };
+
     return(
       <div className={classes.itemContainer} key={index}>
         <p className={classes.itemUsername}>{param.username}</p>
-        <p className={classes.itemStatus}>HR Status: {param.hrManagerStatus}</p>
-        <p className={classes.itemStatus}>lineManager Status: {param.lineManagerStatus}</p>
-        <p className={classes.itemStatus}>gcio Status: {param.gcioStatus}</p>
+        <p className={statusClass[param.hrManagerStatus]}>HR Status: {param.hrManagerStatus}</p>
+        <p className={statusClass[param.lineManagerStatus]}>Line-Manager Status: {param.lineManagerStatus}</p>
+        <p className={statusClass[param.gcioStatus]}>GCIO Status: {param.gcioStatus}</p>
         <div className={classes.itemButtonContainer}>
           <DefaultButton
             text={"View Plan"}
             onClick={() => handleViewClick(param.Id)}
           />
           <DefaultButton
-          iconProps={{ iconName: 'Add' }}
-          menuAs={_getMenu}
-          menuProps={{
-            items: [
-              {
-                key: 'emailMessage',
-                text: 'Approve',
-                iconProps: { iconName: 'Accept' },
-                onClick: () => handleApprovalAction(param.Id, "approved")
-              },
-              {
-                key: 'calendarEvent',
-                text: 'Reject',
-                iconProps: { iconName: 'Cancel' },
-                onClick: () => handleApprovalAction(param.Id, "rejected")
-              },
-              {
-                key: 'viewEvent',
-                text: 'View',
-                iconProps: { iconName: 'PreviewLink' }
-              }
-            ],
-            directionalHintFixed: true
-          }}
+            iconProps={{ iconName: 'Add' }}
+            menuAs={_getMenu}
+            menuProps={{
+              items: [
+                {
+                  key: 'emailMessage',
+                  text: 'Approve',
+                  iconProps: { iconName: 'Accept' },
+                  onClick: () => handleApprovalAction(param.Id, "Approved")
+                },
+                {
+                  key: 'calendarEvent',
+                  text: 'Reject',
+                  iconProps: { iconName: 'Cancel' },
+                  onClick: () => handleApprovalAction(param.Id, "Rejected")
+                },
+                {
+                  key: 'viewEvent',
+                  text: 'View',
+                  iconProps: { iconName: 'PreviewLink' }
+                }
+              ],
+              directionalHintFixed: true
+            }}
           />
         </div>
       </div>

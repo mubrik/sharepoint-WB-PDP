@@ -19,7 +19,7 @@ export interface IServer {
     stakeHolderData: IFormBioData): Promise<boolean>;
   updateEntry(id: number, param: object): Promise<boolean>;
   deleteEntry(id: number): Promise<boolean>;
-  approveRejectEntry(id: number, userType: string, param: "approved"|"rejected"): Promise<boolean>;
+  approveRejectEntry(id: number, userType: string, param: "Approved"|"Rejected"): Promise<boolean>;
 }
 
 export interface ISPBioDataObj {

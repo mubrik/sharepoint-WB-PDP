@@ -4,6 +4,8 @@ import "@pnp/sp/site-users";
 import "@pnp/sp/profiles";
 import "@pnp/sp/site-groups";
 import "@pnp/sp/site-groups/web";
+import "@pnp/sp/sputilities";
+import { IEmailProperties } from "@pnp/sp/sputilities";
 // types
 import { IServer, IPartialSPdata, IUserData, ISPFullObj} from "./serverTypes";
 import {IFormYearData, IFormTrainingData, IFormBioData, IFormUserData} from "../components/dataTypes";
@@ -232,11 +234,9 @@ class Server implements IServer{
     }
 
     public approveRejectEntry =
-      async (id: number, userType: string, param: "approved"|"rejected"): Promise<boolean> => {
+      async (id: number, userType: string, param: "Approved"|"Rejected"): Promise<boolean> => {
 
       return new Promise((resolve, reject) => {
-        //log
-        console.log(id, userType, param);
         // get date
         const _date = new Date();
         // obj to update
@@ -263,8 +263,7 @@ class Server implements IServer{
 
         this.fetch.web.lists.getByTitle("HR-PDP-SINGLE")
           .items.getById(id).update(updateObj)
-          .then(result => {
-            console.log(result);
+          .then(_ => {
             resolve(true);
           })
           .catch(error => {
@@ -272,6 +271,29 @@ class Server implements IServer{
           });
       });
 
+    }
+
+    public sendFeedback = (email: string, rating: number, feedback: string) => {
+
+      return new Promise((resolve, reject) => {
+        // split string
+        const domain = email.split("@")[1];
+        // construct mail
+        const To = [`webpartfeedback@${domain}`];
+        const Subject = `Feedback from ${email}`;
+        const Body = `Rated: ${rating} stars, Feedback: ${feedback}`;
+        // body
+        const emailProps: IEmailProperties = {
+          To,
+          Subject,
+          Body
+        };
+        console.log(emailProps);
+        // send
+        this.fetch.utility.sendEmail(emailProps)
+          .then(_ => resolve(true))
+          .catch(error => reject(error));
+      });
     }
 
     private processSharepointData = (yearData: IFormYearData, trainData: IFormTrainingData): IPartialSPdata => {
