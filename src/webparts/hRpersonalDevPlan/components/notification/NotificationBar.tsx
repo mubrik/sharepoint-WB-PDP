@@ -2,6 +2,7 @@ import * as React from "react";
 import {MessageBar,
   MessageBarType, Stack} from "office-ui-fabric-react";
 
+type NotificationType = "error" | "info" | "success" | "warning";
 interface INotificationBarProps {
   children: React.ReactNode;
 }
@@ -11,6 +12,7 @@ export interface INotificationBarState {
   msg: string;
   isError?: boolean;
   errorObj?: Error|null;
+  type?: NotificationType;
 }
 
 const initialState = {
@@ -40,7 +42,12 @@ const NotificationBar = ({children}:INotificationBarProps):JSX.Element => {
         notifyState.show &&
         <Stack>
           <MessageBar
-            messageBarType={notifyState.isError ? MessageBarType.error : MessageBarType.success}
+            messageBarType={
+              notifyState.isError ? MessageBarType.error 
+              : notifyState.type === "info" ? MessageBarType.info 
+              : notifyState.type === "warning" ? MessageBarType.warning 
+              : MessageBarType.success
+            }
             isMultiline={false}
             onDismiss={() => setNotifyState(initialState)}
             dismissButtonAriaLabel="Close"

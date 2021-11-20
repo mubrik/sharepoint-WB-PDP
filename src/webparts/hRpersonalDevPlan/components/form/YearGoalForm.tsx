@@ -1,13 +1,14 @@
 import * as React from "react";
 // fabric ui
 import {TextField,
-   Stack, PrimaryButton,
-   Dropdown, mergeStyleSets,
-   IDropdownOption
+  Stack, PrimaryButton,
+  Dropdown, mergeStyleSets,
+  IDropdownOption, IconButton
  } from "office-ui-fabric-react";
 // components and types
 import {IYearControlProps,} from "./propTypes";
 import ValidationDisplay from "../utils/ValidationDisplay";
+import useNotificationHook from "../notification/hook";
 
 // styles
 const gridCLasses = mergeStyleSets({
@@ -40,11 +41,13 @@ const PersonalInfoForm = ({yearData, setYearData, validState, setValidState}: IY
   const [yearOptions, setYearOptions] = React.useState<IDropdownOption[]>([]);
   const [selectedYear, setSelectedYear] = React.useState(null);
   const [textField, setTextField] = React.useState("");
+  // notify 
+  const notify = useNotificationHook();
 
   // effect for validation
   React.useEffect(() => {
     // items
-    let _items = [...itemsArray];
+    const _items = [...itemsArray];
     // not valid
     if (_items.length === 0) {
 
@@ -52,7 +55,8 @@ const PersonalInfoForm = ({yearData, setYearData, validState, setValidState}: IY
         ...prevState,
         yearData: {
           valid: false,
-          msg: "Goals for the year cant be empty"
+          msg: "Goals for the year can not be empty, add a goal for a year",
+          location: "Year-Form"
         }
       }));
     } else {
@@ -69,7 +73,7 @@ const PersonalInfoForm = ({yearData, setYearData, validState, setValidState}: IY
   }, [itemsArray]);
   // effect to update item array on mount
   React.useEffect(() => {
-    let _items = [...itemsArray];
+    const _items = [...itemsArray];
     // loop over
     Object.keys(yearData).forEach(_year => {
       if (!_items.includes(_year)) {
@@ -82,11 +86,11 @@ const PersonalInfoForm = ({yearData, setYearData, validState, setValidState}: IY
   // effect to set years options
   React.useEffect(() => {
     // curr year
-    let date = new Date();
+    const date = new Date();
     // year string
-    let year1 = date.getFullYear() + "";
-    let year2 = date.getFullYear() + 1 + "";
-    let year3 = date.getFullYear() + 2 + "";
+    const year1 = date.getFullYear() + "";
+    const year2 = date.getFullYear() + 1 + "";
+    const year3 = date.getFullYear() + 2 + "";
     // loop
     setYearOptions([
       {key: year1, text: year1},
@@ -95,42 +99,38 @@ const PersonalInfoForm = ({yearData, setYearData, validState, setValidState}: IY
     ]);
   }, []);
 
-  // year options, const for now
-  // const yearOptions = [
-  //   {key: "2020", text: "2020"},
-  //   {key: "2021", text: "2021"},
-  //   {key: "2022", text: "2022"},
-  // ];
-
   // handlers
-  const handleAddYearItem = () => {
+  const handleAddYearItem = (): void => {
     if (selectedYear === null) return;
     // year
-    let _year = selectedYear ? selectedYear.key : null;
+    const _year = selectedYear ? selectedYear.key : null;
     // item array
-    let itemArr = [...itemsArray];
+    const itemArr = [...itemsArray];
     // max is 3 years
     if (itemArr.includes(_year)) {
+      notify({msg: `Year goal for ${_year} exists`, type: "info", show: true});
       return;
     }
     // add item
     itemArr.push(_year);
     // set state
     setItemsArray(itemArr);
-
+    // set year data
     setYearData(oldState => ({
       ...oldState,
       [_year]: textField
     }));
+    // clear text field
+    setTextField("");
 
   };
 
-  const handleRemoveItem = (param: string) => {
+  const handleRemoveItem = (param: string): void => {
     // item array
-    let itemArr = [...itemsArray];
-    let state = {...yearData};
+    const itemArr = [...itemsArray];
+    const state = {...yearData};
     // filter
-    let newArr = itemArr.filter(_year => _year !== param);
+    const newArr = itemArr.filter(_year => _year !== param);
     // mutate state
     delete state[param];
     // set state
@@ -139,11 +139,11 @@ const PersonalInfoForm = ({yearData, setYearData, validState, setValidState}: IY
   };
 
   // generate readonly text field
-  const generateTextField = (param: string) => {
+  const generateTextField = (param: string): JSX.Element => {
     return(
       <div className={gridCLasses.itemContainer}>
-        <TextField key={param} value={yearData[param] as string} readOnly/>
-        <PrimaryButton text={"clear"} onClick={() => handleRemoveItem(param)}/>
+        <TextField key={param} prefix="Goal:" value={yearData[param] as string} readOnly/>
+        <IconButton iconProps={{iconName: "Clear"}} title="Clear" onClick={() => handleRemoveItem(param)}/>
       </div>
     );
   };
@@ -169,7 +169,7 @@ const PersonalInfoForm = ({yearData, setYearData, validState, setValidState}: IY
           placeholder={"What are your dreams – envision where you would like your career to be at specific point of time."}
         />
         <PrimaryButton
-          text={"Add Goal"}
+          text={"Add Goal for selected Year"}
           onClick={handleAddYearItem}
           disabled={selectedYear === null || textField === "" || itemsArray.length === 3}
         />

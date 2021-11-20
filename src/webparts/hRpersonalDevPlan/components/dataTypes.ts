@@ -16,10 +16,10 @@ export const initialTrainingFormData = {
 
 // validation obj
 export const initialValidObj = {
-  bioData: {valid:false, msg: ""},
-  yearData: {valid:false, msg: ""},
-  trainData: {valid:false, msg: ""},
-  state: {valid: false, msg: ""}
+  bioData: {valid:false, msg: "", location: "Bio-Form"},
+  yearData: {valid:false, msg: "", location: "Year-Form"},
+  trainData: {valid:false, msg: "", location: "Training-Form"},
+  state: {valid: false, msg: "", location: ""}
 };
 
 export const initialAppData:IAppData = {
@@ -44,6 +44,7 @@ export interface IValidState {
 export interface IValidationObj {
   valid: boolean;
   msg: string;
+  location?: string;
 }
 // interface for form year data
 export interface IFormYearData {

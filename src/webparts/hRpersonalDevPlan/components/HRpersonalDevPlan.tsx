@@ -35,7 +35,7 @@ const MainPage:React.FunctionComponent<IHRpersonalDevPlanProps> = () => {
     try {
       document.getElementById("workbenchPageContent").style.maxWidth = "1920px";
     } catch (error) {
-
+      console.log(error);
     }
   }, []);
   // get user data

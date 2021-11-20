@@ -1,3 +1,4 @@
+// depreceated for notification component
 import * as React from "react";
 import {MessageBar,
   MessageBarType, Stack} from "office-ui-fabric-react";
@@ -52,4 +53,4 @@ const ErrorModal = ({children}:IErrorModalProps):JSX.Element => {
   );
 };
 
-export default ErrorModal;
+// export default ErrorModal;

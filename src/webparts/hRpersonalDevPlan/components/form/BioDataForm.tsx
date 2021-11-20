@@ -17,28 +17,30 @@ const BioForm = ({bioData, _onChange, validState, setValidState}: IBioControlPro
     let isValid = true;
     // loop, break if any invalid
     for (const key in bioData) {
-       let _text: string = bioData[key];
+       const _text: string = bioData[key];
 
        if (_text.length <= 5 || _text === "") {
          isValid = false;
          setValidState(prevState => ({
            ...prevState,
            bioData: {
-             valid: false,
-             msg: "Minimum length of 5 characters"
-           }
+            valid: false,
+            msg: "Minimum length of 5 characters",
+            location: "Bio-Form"
+          }
          }));
          break;
        }
      }
-     // runs if loop doesnt break
+     // runs if is valid is set to true after break
      if (isValid) {
        setValidState(prevState => ({
-         ...prevState,
-         bioData: {
-           valid: true,
-           msg: ""
-         }
+        ...prevState,
+        bioData: {
+          valid: true,
+          msg: "",
+          location: "Bio-Form"
+        }
        }));
      }
 
@@ -51,7 +53,7 @@ const BioForm = ({bioData, _onChange, validState, setValidState}: IBioControlPro
         msg={validState.msg}
       />
       <StackItem>
-        <Label htmlFor={"strengthWeakness"}>Identify Your Strength and strengthWeakness</Label>
+        <Label htmlFor={"strengthWeakness"}> Identify Your Strengths and Weakness: </Label>
         <TextField
           multiline
           required
@@ -62,7 +64,7 @@ const BioForm = ({bioData, _onChange, validState, setValidState}: IBioControlPro
         />
       </StackItem>
       <StackItem>
-        <Label htmlFor={"stakeHolder1"}>Stakeholders requirements</Label>
+        <Label htmlFor={"stakeHolder1"}> Stakeholders requirements: </Label>
         <TextField
           multiline
           required
@@ -73,7 +75,7 @@ const BioForm = ({bioData, _onChange, validState, setValidState}: IBioControlPro
         />
       </StackItem>
       <StackItem>
-        <Label htmlFor={"stakeHolder2"}>What's Next</Label>
+        <Label htmlFor={"stakeHolder2"}> What is Next? </Label>
         <TextField
           required
           multiline
@@ -84,7 +86,7 @@ const BioForm = ({bioData, _onChange, validState, setValidState}: IBioControlPro
         />
       </StackItem>
       <StackItem>
-        <Label htmlFor={"stepsTaken"}>Steps Taken</Label>
+        <Label htmlFor={"stepsTaken"}>Steps Taken: </Label>
         <TextField
           required
           multiline
@@ -95,7 +97,7 @@ const BioForm = ({bioData, _onChange, validState, setValidState}: IBioControlPro
         />
       </StackItem>
       <StackItem>
-        <Label htmlFor={"continousImprovement"}>Continous Improvement</Label>
+        <Label htmlFor={"continousImprovement"}>Continous Improvement: </Label>
         <TextField
           multiline
           required

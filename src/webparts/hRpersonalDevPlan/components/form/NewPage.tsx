@@ -34,7 +34,7 @@ const NewPage = ({appData, setAppData}: INewPageProps): JSX.Element => {
   // context
   const {displayName, email, manager, jobTitle}:IUserData = React.useContext(UserContext);
   // notify
-  const setNotification = useNotificationHook();
+  const notify = useNotificationHook();
   // effect for validation
   React.useEffect(() => {
     // valid
@@ -46,7 +46,7 @@ const NewPage = ({appData, setAppData}: INewPageProps): JSX.Element => {
         if (!validState[key].valid) {
           setValidState(prevState => ({
             ...prevState,
-            state: {valid: false, msg: validState[key].msg}
+            state: {valid: false, msg: validState[key].msg, location: validState[key].location}
           }));
 
           valid = false;
@@ -65,8 +65,21 @@ const NewPage = ({appData, setAppData}: INewPageProps): JSX.Element => {
 
   },[validState.bioData, validState.trainData, validState.yearData]);
 
+  // effect for notifying user of validation state
+  React.useEffect(() => {
+    // pages by validation obj 0-year, 1- bio, 2- training
+    const pagesArr = ["yearData", "bioData", "trainData"];
+    const currPage = pagesArr[pageState];
+    // get data from validation obj
+    if (!validState[currPage].valid && validState[currPage].msg) {
+      notify({show: true, msg: `${validState[currPage].location}: ${validState[currPage].msg}`, type: "warning" });
+    } else {
+      notify({show: false, msg: ""});
+    }
+  }, [pageState, validState]);
+
   // handler
-  const handleInputChange = (name: string, _: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, newValue?: string) => {
+  const handleInputChange = (name: string, _: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, newValue?: string): void => {
     // set data by name
     setBioData(oldData => {
       return {
@@ -76,7 +89,7 @@ const NewPage = ({appData, setAppData}: INewPageProps): JSX.Element => {
     });
   };
 
-  const handleNavigationClick = (name: string) => {
+  const handleNavigationClick = (name: string): void => {
     switch(name) {
       case "prev":
         // minus
@@ -91,7 +104,7 @@ const NewPage = ({appData, setAppData}: INewPageProps): JSX.Element => {
     }
   };
 
-  const handleFinishClick = () => {
+  const handleFinishClick = (): void => {
     // make user obj
     const userObj: IFormUserData = {
       username: email,
@@ -112,11 +125,11 @@ const NewPage = ({appData, setAppData}: INewPageProps): JSX.Element => {
           ...prevValue,
           draftAvailable: true
         }));
-        setNotification({show: true, isError: false, msg:"Draft created successfully"});
+        notify({show: true, isError: false, msg:"Draft created successfully"});
       }
     })
     .catch(error => {
-      setNotification({show: true, isError: true, msg:"Error creating item", errorObj: error});
+      notify({show: true, isError: true, msg:"Error creating item", errorObj: error});
     });
   };
 
@@ -180,13 +193,11 @@ const NewPage = ({appData, setAppData}: INewPageProps): JSX.Element => {
                 iconProps={{iconName: 'ChromeBackMirrored' }}
               />
               <PrimaryButton text={"Finish"} onClick={handleFinishClick} disabled={!validState.state.valid}/>
-              /**
-              <PrimaryButton text={"Test"} onClick={ () => {
+              {/* <PrimaryButton text={"Test"} onClick={ () => {
                 fetchServer.getUserList(email)
                   .then(res => console.log(res))
                   .catch(_ => setNotification({show: true, isError: true, msg:"Hi error"}));
-              }}/>
-              */
+              }}/> */}
             </Stack>
           </Stack>
         </>

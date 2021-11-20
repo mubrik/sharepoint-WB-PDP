@@ -2,13 +2,16 @@ import * as React from "react";
 // fabric ui
 import {TextField,
    Stack, Label,
-   PrimaryButton, mergeStyleSets
+   PrimaryButton, mergeStyleSets,
+   IconButton
  } from "office-ui-fabric-react";
 // components and types
 import {ITrainingControlProps,} from "./propTypes";
 import ValidationDisplay from "../utils/ValidationDisplay";
 // data
 import {initialTrainingFormData} from "../dataTypes";
+// notify
+import useNotificationHook from "../notification/hook";
 
 // styles
 const gridCLasses = mergeStyleSets({
@@ -21,6 +24,7 @@ const gridCLasses = mergeStyleSets({
   },
   itemContainer: {
     display: "flex",
+    flexDirection: "column",
     alignItems: "center",
     borderRadius: "4px",
     margin: "4px",
@@ -38,11 +42,13 @@ const TrainingForm = ({trainData, setTrainData, validState, setValidState}: ITra
   // states
   const [itemsArray, setItemsArray] = React.useState<string[]>([]);
   const [stateData, setStateData] = React.useState(initialTrainingFormData);
+  // notify
+  const notify = useNotificationHook();
 
   // effect for validation
   React.useEffect(() => {
     // items
-    let _items = [...itemsArray];
+    const _items = [...itemsArray];
     // not valid
     if (_items.length === 0) {
 
@@ -50,7 +56,8 @@ const TrainingForm = ({trainData, setTrainData, validState, setValidState}: ITra
         ...prevState,
         trainData: {
           valid: false,
-          msg: "Please add a training"
+          msg: "Please add a training",
+          location: "Training-Form"
         }
       }));
     } else {
@@ -59,7 +66,8 @@ const TrainingForm = ({trainData, setTrainData, validState, setValidState}: ITra
         ...prevState,
         trainData: {
           valid: true,
-          msg: ""
+          msg: "",
+          location: "Training-Form"
         }
       }));
 
@@ -68,7 +76,7 @@ const TrainingForm = ({trainData, setTrainData, validState, setValidState}: ITra
 
   // effect to update item array on mount
   React.useEffect(() => {
-    let _items = [...itemsArray];
+    const _items = [...itemsArray];
     // loop over
     Object.keys(trainData).forEach(_training => {
       if (!_items.includes(_training)) {
@@ -80,7 +88,7 @@ const TrainingForm = ({trainData, setTrainData, validState, setValidState}: ITra
   },[trainData]);
 
   // handlers
-  const handleInputChange = (name: string, _: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, newValue?: string) => {
+  const handleInputChange = (name: string, _: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, newValue?: string): void => {
     if (name === "trainingStatus") {
       newValue = Number(newValue) > 100 ? "100"
                 : Number(newValue) <  0 ? "0" : newValue;
@@ -92,17 +100,20 @@ const TrainingForm = ({trainData, setTrainData, validState, setValidState}: ITra
     }));
   };
 
-  const handleAddTrainingItem = () => {
+  const handleAddTrainingItem = (): void => {
     // states
-    let _itemsArr = [...itemsArray];
+    const _itemsArr = [...itemsArray];
     let _trainData = {...trainData};
     // array length
-    let arrLen = _itemsArr.length;
+    const arrLen = _itemsArr.length;
     if (arrLen >= 4) return;
     // create property name
-    let _name = stateData.trainingTitle.replace(/\s/g,'');
+    const _name = stateData.trainingTitle.replace(/\s/g,'');
     // if already there
-    if (itemsArray.includes(_name)) return;
+    if (itemsArray.includes(_name)) {
+      notify({show: true, type: "warning", msg: `Training ${_name} already added`});
+      return;
+    }
     // else mutate
     _itemsArr.push(_name);
     _trainData = {
@@ -114,12 +125,12 @@ const TrainingForm = ({trainData, setTrainData, validState, setValidState}: ITra
     setTrainData(_trainData);
   };
 
-  const handleRemoveTrainingItem = (param: string) => {
+  const handleRemoveTrainingItem = (param: string): void => {
     // item array
-    let _itemArr = [...itemsArray];
-    let _trainData = {...trainData};
+    const _itemArr = [...itemsArray];
+    const _trainData = {...trainData};
     // filter
-    let newArr = _itemArr.filter(_name => _name !== param);
+    const newArr = _itemArr.filter(_name => _name !== param);
     // mutate state
     delete _trainData[param];
     // set state
@@ -130,10 +141,12 @@ const TrainingForm = ({trainData, setTrainData, validState, setValidState}: ITra
   // generate readonly text field
   const generateCardField = (param: string) => {
     return(
-      <div className={gridCLasses.itemContainer}>
-        <TextField key={param+0} value={trainData[param].trainingTitle} readOnly/>
-        <PrimaryButton text={"del"} onClick={() => handleRemoveTrainingItem(param)}/>
-      </div>
+      <Stack verticalAlign="center" tokens={{childrenGap: 5, padding: 4}}>
+        <TextField key={param+0} prefix="Title" value={trainData[param].trainingTitle} readOnly/>
+        <TextField key={param+1} prefix="Duration" value={trainData[param].trainingDuration} readOnly/>
+        <TextField key={param+2} prefix="Status" value={trainData[param].trainingStatus} readOnly/>
+        <IconButton iconProps={{iconName: "Clear"}} title="Clear" onClick={() => handleRemoveTrainingItem(param)}/>
+      </Stack>
     );
   };
 
