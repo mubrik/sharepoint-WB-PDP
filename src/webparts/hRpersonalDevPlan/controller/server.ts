@@ -31,7 +31,7 @@ class Server implements IServer{
         const user = await this.fetch.web.currentUser();
         const groups = await this.fetch.web.currentUser.groups();
         // vars
-        let managersArr: string[] = profile.ExtendedManagers;
+        const managersArr: string[] = profile.ExtendedManagers;
         let manager = "";
         // for fse
         if (profile.Title === "Field Support Engineer") {
@@ -175,9 +175,9 @@ class Server implements IServer{
       // get list, add item
       return new Promise((resolve, reject) => {
         // partial data
-        let _partial = this.processSharepointData(yearData, trainData);
+        const _partial = this.processSharepointData(yearData, trainData);
         // mutate
-        let _draft = {
+        const _draft = {
           ...userData,
           ...stakeHolderData,
           ..._partial
@@ -200,7 +200,7 @@ class Server implements IServer{
       });
     }
 
-    public updateEntry = (id: number, param: object): Promise<boolean>  => {
+    public updateEntry = (id: number, param: Record<string, unknown>): Promise<boolean>  => {
 
       return new Promise((resolve, reject) => {
 
@@ -273,7 +273,7 @@ class Server implements IServer{
 
     }
 
-    public sendFeedback = (email: string, rating: number, feedback: string) => {
+    public sendFeedback = (email: string, rating: number, feedback: string): Promise<boolean> => {
 
       return new Promise((resolve, reject) => {
         // split string
@@ -298,17 +298,17 @@ class Server implements IServer{
 
     private processSharepointData = (yearData: IFormYearData, trainData: IFormTrainingData): IPartialSPdata => {
       // state
-      let _spData = {
+      const _spData = {
         "yearsTotal": Object.keys(yearData).length + "",
         "trainingTotal": Object.keys(trainData).length + ""
       };
       // loop over year data
       Object.keys(yearData).forEach((_year, _index) => {
         // number
-        let num = _index+1;
+        const num = _index+1;
         // string
-        let year = "year" + num;
-        let yearGol = "yearGoal" + num;
+        const year = "year" + num;
+        const yearGol = "yearGoal" + num;
         // mutate
         _spData[year] = _year;
         _spData[yearGol] = yearData[_year];
@@ -316,12 +316,12 @@ class Server implements IServer{
       // loop over training
       Object.keys(trainData).forEach((_training, _index) => {
         // number
-        let num = _index+1;
+        const num = _index+1;
         // string
-        let trainTitle = "trainingTitle" + num;
-        let trainDuration = "trainingDuration" + num;
-        let trainStatus = "trainingStatus" + num;
-        let trainObj = "trainingObjective" + num;
+        const trainTitle = "trainingTitle" + num;
+        const trainDuration = "trainingDuration" + num;
+        const trainStatus = "trainingStatus" + num;
+        const trainObj = "trainingObjective" + num;
         // mutate
         _spData[trainTitle] = trainData[_training].trainingTitle;
         _spData[trainDuration] = trainData[_training].trainingDuration;

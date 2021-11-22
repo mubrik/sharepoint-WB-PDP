@@ -4,10 +4,11 @@ import {TextField,
    Stack, Label,
    PrimaryButton, mergeStyleSets,
    IconButton
- } from "office-ui-fabric-react";
+} from "office-ui-fabric-react";
+import ResponsivePrimaryButton from "../utils/ResponsiveButton";
 // components and types
-import {ITrainingControlProps,} from "./propTypes";
-import ValidationDisplay from "../utils/ValidationDisplay";
+import {ITrainingControlProps} from "./propTypes";
+// import ValidationDisplay from "../utils/ValidationDisplay";
 // data
 import {initialTrainingFormData} from "../dataTypes";
 // notify
@@ -123,6 +124,8 @@ const TrainingForm = ({trainData, setTrainData, validState, setValidState}: ITra
     // set states
     setItemsArray(_itemsArr);
     setTrainData(_trainData);
+    // clear form 
+    setStateData(initialTrainingFormData);
   };
 
   const handleRemoveTrainingItem = (param: string): void => {
@@ -139,23 +142,25 @@ const TrainingForm = ({trainData, setTrainData, validState, setValidState}: ITra
   };
 
   // generate readonly text field
-  const generateCardField = (param: string) => {
+  const generateCardField = (param: string): JSX.Element => {
     return(
       <Stack verticalAlign="center" tokens={{childrenGap: 5, padding: 4}}>
         <TextField key={param+0} prefix="Title" value={trainData[param].trainingTitle} readOnly/>
         <TextField key={param+1} prefix="Duration" value={trainData[param].trainingDuration} readOnly/>
-        <TextField key={param+2} prefix="Status" value={trainData[param].trainingStatus} readOnly/>
-        <IconButton iconProps={{iconName: "Clear"}} title="Clear" onClick={() => handleRemoveTrainingItem(param)}/>
+        <TextField key={param+2} prefix="Status" value={trainData[param].trainingStatus} suffix="%" readOnly/>
+        <ResponsivePrimaryButton 
+          text={"Clear"}
+          iconProps={{iconName: "Clear"}} 
+          title="Clear" 
+          onClick={() => handleRemoveTrainingItem(param)}
+          type="default"
+        />
       </Stack>
     );
   };
 
   return (
     <Stack>
-      <ValidationDisplay
-        valid={validState.valid}
-        msg={validState.msg}
-      />
       <Stack tokens={{childrenGap:8}}>
         <Label>Add Training</Label>
         <Stack horizontal wrap tokens={{childrenGap:8, padding:4}}>
@@ -171,7 +176,7 @@ const TrainingForm = ({trainData, setTrainData, validState, setValidState}: ITra
             label={"Training Duration"}
             value={stateData.trainingDuration}
             onChange={(event, newValue) => handleInputChange("trainingDuration", event, newValue)}
-            placeholder={"Duration eg. 1 month, 2 years"}
+            placeholder={"eg. 1 month, 2 years"}
           />
           <TextField
             type={"number"}

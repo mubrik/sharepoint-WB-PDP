@@ -24,7 +24,7 @@ export const AppContext = React.createContext<IAppData>(null);
 const MainPage:React.FunctionComponent<IHRpersonalDevPlanProps> = () => {
 
   // page state
-  const [pageState, setPageState] = React.useState("new");
+  const [pageState, setPageState] = React.useState("plan");
   const [userData, setUserData] = React.useState<IUserData>({});
   const [appData, setAppData] = React.useState<IAppData>(initialAppData);
   // notify

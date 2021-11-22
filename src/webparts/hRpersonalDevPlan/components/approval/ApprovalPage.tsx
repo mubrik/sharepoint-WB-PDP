@@ -103,7 +103,7 @@ const ApprovalPage = ({userType, setAppData, setMainPageState}:IApprovalProps): 
   }, []);
 
   // handlers
-  const handleApprovalAction = (id: number, param: "Approved"|"Rejected") => {
+  const handleApprovalAction = (id: number, param: "Approved"|"Rejected"): void => {
     // call server
     fetchServer.approveRejectEntry(id, userType, param)
     .then(_ => setNotification({show: true, isError: false, msg:"Item status updated"}))
@@ -112,7 +112,7 @@ const ApprovalPage = ({userType, setAppData, setMainPageState}:IApprovalProps): 
     });
   };
 
-  const handleViewClick = (id: number) => {
+  const handleViewClick = (id: number): void => {
     // set app view data
     setAppData(prevValue => ({
       ...prevValue,

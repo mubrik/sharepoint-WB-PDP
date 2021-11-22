@@ -22,7 +22,7 @@ const DialogOption =
     subText: subtitle
   };
 
-  const handleCloseDialog = () => {
+  const handleCloseDialog = (): void => {
     setDialogProps(prevValue => {
       return {
           ...prevValue,

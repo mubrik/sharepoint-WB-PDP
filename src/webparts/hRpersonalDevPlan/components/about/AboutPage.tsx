@@ -23,7 +23,7 @@ const AboutPage = ():JSX.Element => {
   const notify = useNotificationHook();
 
   // handlers
-  const handleSubmitClick = () => {
+  const handleSubmitClick = (): void => {
     fetchServer.sendFeedback(email, currentRating, textValue)
       .then(_ => {
         notify({show: true, isError: false, msg: "Thanks for the feedback!"});

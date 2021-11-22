@@ -1,51 +1,39 @@
 import * as React from "react";
-import {mergeStyleSets, Stack, Label} from "office-ui-fabric-react";
+// ui
+import {
+  IStackStyles, Stack, 
+  Label, TextField, StackItem
+} from "office-ui-fabric-react";
 // prop type
 import {IBaseViewCompProps} from "./propTypes";
 // styles
-const classes = mergeStyleSets({
-  yearContainer: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    borderRadius: "4px",
-    margin: "4px",
-    boxShadow: "0px 0px 4px 0px #433f7e7d",
-    overflow: "hidden",
-    maxWidth: "80vw"
-  },
-  YearTitle: {
-    padding: "5px",
-    margin: "2px 2px",
-    borderBottom: "1px solid blue"
-  },
-  yearGoal: {
-    padding: "5px",
-    margin: "2px 2px",
-    lineBreak: "anywhere"
-  },
-});
+const stackStyles: IStackStyles = {
+  root: {
+    boxShadow: "0px 1px 3px 0px rgba(50, 50, 50, 0.71)",
+    borderRadius: "10px"
+  }
+};
 
 const YearView = ({viewData}:IBaseViewCompProps): JSX.Element => {
 
-  let _yearAmt = viewData.yearsTotal;
+  const _yearAmt = viewData.yearsTotal;
 
   const generateYearItem = (param: number): JSX.Element[] => {
     // arr to hold component
-    let compArr = [];
+    const compArr = [];
 
     for (let i = 0; i < param; i++) {
       // number
-      let num = i+1;
+      const num = i+1;
       // string
-      let year = "year" + num;
-      let yearGol = "yearGoal" + num;
+      const year = "year" + num;
+      const yearGol = "yearGoal" + num;
 
       compArr.push(
-        <div key={year} className={classes.yearContainer}>
-          <h4 className={classes.YearTitle}>{viewData[year]}</h4>
-          <p className={classes.yearGoal}>{viewData[yearGol]}</p>
-        </div>
+        <Stack tokens={{childrenGap: 6, padding:5}}>
+          <TextField readOnly key={year} prefix={"Year:"} value={viewData[year]}/>
+          <TextField readOnly autoAdjustHeight multiline key={year} prefix={"Goal:"} value={viewData[yearGol]}/>
+        </Stack>
       );
     }
 
@@ -53,11 +41,13 @@ const YearView = ({viewData}:IBaseViewCompProps): JSX.Element => {
   };
 
   return (
-    <Stack horizontalAlign={"center"}>
-      <Label>
-        Your Dreams
-      </Label>
-      <Stack horizontal horizontalAlign={"center"}>
+    <Stack horizontalAlign={"stretch"} tokens={{childrenGap: 9, padding: 6}} styles={stackStyles}>
+      <StackItem align="center" verticalFill>
+        <Label>
+          Year Goals:
+        </Label>
+      </StackItem>
+      <Stack tokens={{childrenGap: 6}} horizontal horizontalAlign={"space-evenly"}>
         {generateYearItem(_yearAmt)}
       </Stack>
     </Stack>

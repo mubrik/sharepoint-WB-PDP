@@ -1,3 +1,4 @@
+// depreceated for notificatio componenet
 import * as React from "react";
 import {mergeStyleSets} from "office-ui-fabric-react";
 // types
@@ -42,4 +43,4 @@ const ValidationDisplay = ({valid, msg}: IValidationObj): JSX.Element => {
   );
 };
 
-export default ValidationDisplay;
+// export default ValidationDisplay;

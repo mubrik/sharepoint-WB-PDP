@@ -24,14 +24,14 @@ const initialViewStateData: IViewStateData = {
 
 const ViewPage = ({appData, setAppData}: IViewPageProps):JSX.Element => {
   // server req context
-  const userData:IUserData = React.useContext(UserContext);
+  const {email}:IUserData = React.useContext(UserContext);
   // states
   const [stateData, setStateData] = React.useState(initialViewStateData);
   const [dialogProps, setDialogProps] = React.useState({
     show: false,
     title: "",
     subtitle: "",
-    callback: () => {},
+    callback: () => {console.log("placeholder");},
     dtype: "close"
   });
   // notify
@@ -39,12 +39,13 @@ const ViewPage = ({appData, setAppData}: IViewPageProps):JSX.Element => {
 
   // use effect for getting data
   React.useEffect(() => {
-    if (stateData.status === "loaded") {
+    // if already loaded/ email null
+    if (stateData.status === "loaded" || !email) {
       return;
     }
     // get user data
     if (appData.viewPageMode === "normal") {
-      fetchServer.getUserList(userData.email)
+      fetchServer.getUserList(email)
         .then(result => {
           if (result.length === 0) {
             // empty array, user not created
@@ -89,7 +90,7 @@ const ViewPage = ({appData, setAppData}: IViewPageProps):JSX.Element => {
           setNotification({show: true, isError: true, msg:"Error getting data, try again", errorObj: error});
         });
     }
-  }, [stateData.status, appData.viewPageMode]);
+  }, [stateData.status, appData.viewPageMode, email]);
 
   // effect to handle unmounting, run only once
   React.useEffect(() => {
@@ -105,7 +106,7 @@ const ViewPage = ({appData, setAppData}: IViewPageProps):JSX.Element => {
     };
   }, []);
   // handlers
-  const handleDeleteClick = () => {
+  const handleDeleteClick = (): void => {
     // delete entry
     fetchServer.deleteEntry(stateData.data.Id)
       .then(res => {

@@ -2,7 +2,7 @@ import * as React from "react";
 // ui
 import {
   IDropdownOption, Dropdown, Stack,
-  TextField, mergeStyleSets, PrimaryButton
+  TextField, mergeStyleSets, PrimaryButton, Label
 } from "office-ui-fabric-react";
 // server
 import {fetchServer} from "../../controller/server";
@@ -18,30 +18,6 @@ interface ITrainDropdown extends IDropdownOption {
   trainStatus: string;
   trainObj: string;
 }
-// styles
-const classes = mergeStyleSets({
-   trainContainer: {
-     display: "flex",
-     flexDirection: "column",
-     alignItems: "center",
-     borderRadius: "4px",
-     margin: "4px",
-     boxShadow: "0px 0px 4px 0px #433f7e7d",
-     overflow: "hidden",
-     maxWidth: "80vw"
-   },
-   trainTitle: {
-     padding: "5px",
-     margin: "2px 2px",
-     borderBottom: "1px solid blue"
-   },
-   trainText: {
-     padding: "5px",
-     margin: "2px 2px",
-     maxWidth: "80vw",
-     lineBreak: "anywhere"
-   },
- });
 
 const TrainingView  = ({viewData, setViewStateData, appData}:ITrainingCompProps): JSX.Element => {
   // states
@@ -54,18 +30,18 @@ const TrainingView  = ({viewData, setViewStateData, appData}:ITrainingCompProps)
   // effect to set training options
   React.useEffect(() => {
     // options arr
-    let optArr = [];
+    const optArr = [];
     // get train amt
-    let amt = viewData.trainingTotal;
+    const amt = viewData.trainingTotal;
     // loop
     for (let i = 0; i < amt; i++) {
       // number
-      let num = i+1;
+      const num = i+1;
       // string
-      let trainTitle = "trainingTitle" + num;
-      let trainDuration = "trainingDuration" + num;
-      let trainStatus = "trainingStatus" + num;
-      let trainObj = "trainingObjective" + num;
+      const trainTitle = "trainingTitle" + num;
+      const trainDuration = "trainingDuration" + num;
+      const trainStatus = "trainingStatus" + num;
+      const trainObj = "trainingObjective" + num;
       // option item
       const trainItem = {
         key: trainTitle,
@@ -83,26 +59,25 @@ const TrainingView  = ({viewData, setViewStateData, appData}:ITrainingCompProps)
   }, [viewData]);
 
   // handlers
-  const handleInputChange = (_: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, newValue?: string) => {
+  const handleInputChange = (_: React.FormEvent<HTMLInputElement | HTMLTextAreaElement>, newValue?: string): void => {
     const value = Number(newValue) > 100 ? "100"
               : Number(newValue) <  0 ? "0" : newValue;
 
     setStatusValue(value);
   };
 
-  const handleUpdateClick = () => {
+  const handleUpdateClick = (): void => {
     // if nothing selected
     if (selectedTraining === null) return;
 
     // data string to update
-    let trainStatus = selectedTraining.trainStatus;
+    const trainStatus = selectedTraining.trainStatus;
 
     const updateItem = {
       [trainStatus]: Number(statusValue),
     };
 
     // call server
-    console.log(updateItem);
     fetchServer.updateEntry(viewData.Id, updateItem)
       .then(_ => {
         setNotification({show: true, isError: false, msg:"Training updated successfully"});
@@ -120,61 +95,39 @@ const TrainingView  = ({viewData, setViewStateData, appData}:ITrainingCompProps)
   };
 
   return (
-    <Stack horizontalAlign={"center"} tokens={{childrenGap: 8}}>
+    <Stack horizontalAlign={"stretch"} tokens={{childrenGap: 8}}>
       <Dropdown
         options={trainOptions}
-        label={"Select Training"}
+        label={"Select a Training:"}
         selectedKey={selectedTraining ? selectedTraining.key : undefined}
         onChange={(_, item) => setSelectedTraining(item as ITrainDropdown)}
       />
       {
         selectedTraining &&
         <>
-          <Stack wrap horizontal horizontalAlign={"center"} tokens={{childrenGap: 8}}>
-            <div className={classes.trainContainer}>
-              <div className={classes.trainTitle}>
-                Title
-              </div>
-              <div className={classes.trainText}>
-                {viewData[selectedTraining["trainTitle"]]}
-              </div>
-            </div>
-            <div className={classes.trainContainer}>
-              <div className={classes.trainTitle}>
-                Duration
-              </div>
-              <div className={classes.trainText}>
-                {viewData[selectedTraining["trainDuration"]]}
-              </div>
-            </div>
-            <div className={classes.trainContainer}>
-              <div className={classes.trainTitle}>
-                Status
-              </div>
-              <div className={classes.trainText}>
-                {viewData[selectedTraining["trainStatus"]] + "%"}
-              </div>
-            </div>
+          <Stack wrap horizontal horizontalAlign={"stretch"} tokens={{childrenGap: 8}}>
+            <TextField readOnly prefix="Title" value={viewData[selectedTraining["trainTitle"]]}/>
+            <TextField readOnly prefix="Duration" value={viewData[selectedTraining["trainDuration"]]}/>
+            <TextField readOnly prefix="Status" suffix="%" value={viewData[selectedTraining["trainStatus"]]}/>
           </Stack>
-          <Stack  wrap horizontal horizontalAlign={"center"} tokens={{childrenGap: 8}}>
-            <div className={classes.trainContainer}>
-              <div className={classes.trainTitle}>
-                Objective
-              </div>
-              <div className={classes.trainText}>
-                {viewData[selectedTraining["trainObj"]]}
-              </div>
-            </div>
+          <Stack horizontalAlign={"stretch"} tokens={{childrenGap: 8}}>
+            <TextField 
+              readOnly 
+              multiline 
+              autoAdjustHeight 
+              prefix="Objective:" 
+              value={viewData[selectedTraining["trainObj"]]}
+            />
           </Stack>
           {
             appData.viewPageMode === "normal" &&
             <Stack horizontal horizontalAlign={"stretch"} verticalAlign={"end"} tokens={{childrenGap: 8}}>
               <TextField
                 type={"number"}
-                label={"Update training status"}
+                label={"Update selected training status:"}
                 min={0}
                 max={100}
-                placeholder={"0% - 100%"}
+                placeholder={"0 - 100"}
                 value={statusValue}
                 onChange={handleInputChange}
               />

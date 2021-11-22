@@ -6,7 +6,7 @@ import {TextField,
  } from "office-ui-fabric-react";
 // components and types
 import {IBioControlProps,} from "./propTypes";
-import ValidationDisplay from "../utils/ValidationDisplay";
+// import ValidationDisplay from "../utils/ValidationDisplay";
 
 
 const BioForm = ({bioData, _onChange, validState, setValidState}: IBioControlProps): JSX.Element => {
@@ -48,10 +48,6 @@ const BioForm = ({bioData, _onChange, validState, setValidState}: IBioControlPro
 
   return(
     <Stack>
-      <ValidationDisplay
-        valid={validState.valid}
-        msg={validState.msg}
-      />
       <StackItem>
         <Label htmlFor={"strengthWeakness"}> Identify Your Strengths and Weakness: </Label>
         <TextField

@@ -4,10 +4,10 @@ import {TextField,
   Stack, PrimaryButton,
   Dropdown, mergeStyleSets,
   IDropdownOption, IconButton
- } from "office-ui-fabric-react";
+} from "office-ui-fabric-react";
+import ResponsivePrimaryButton from "../utils/ResponsiveButton";
 // components and types
-import {IYearControlProps,} from "./propTypes";
-import ValidationDisplay from "../utils/ValidationDisplay";
+import {IYearControlProps} from "./propTypes";
 import useNotificationHook from "../notification/hook";
 
 // styles
@@ -71,6 +71,7 @@ const PersonalInfoForm = ({yearData, setYearData, validState, setValidState}: IY
 
     }
   }, [itemsArray]);
+
   // effect to update item array on mount
   React.useEffect(() => {
     const _items = [...itemsArray];
@@ -83,6 +84,7 @@ const PersonalInfoForm = ({yearData, setYearData, validState, setValidState}: IY
     // mutate
     setItemsArray(_items);
   },[yearData]);
+
   // effect to set years options
   React.useEffect(() => {
     // curr year
@@ -141,19 +143,22 @@ const PersonalInfoForm = ({yearData, setYearData, validState, setValidState}: IY
   // generate readonly text field
   const generateTextField = (param: string): JSX.Element => {
     return(
-      <div className={gridCLasses.itemContainer}>
-        <TextField key={param} prefix="Goal:" value={yearData[param] as string} readOnly/>
-        <IconButton iconProps={{iconName: "Clear"}} title="Clear" onClick={() => handleRemoveItem(param)}/>
-      </div>
+      <Stack horizontalAlign="stretch" tokens={{childrenGap: 6, padding: 2}}>
+        <TextField key={param} prefix="Year:" value={param} readOnly/>
+        <TextField key={param+0} multiline prefix="Goal:" value={yearData[param] as string} readOnly/>
+        <ResponsivePrimaryButton 
+          type="default"
+          text="Clear" 
+          iconProps={{iconName: "Clear"}} 
+          title="Clear" 
+          onClick={() => handleRemoveItem(param)}
+        />
+      </Stack>
     );
   };
 
   return(
-    <Stack>
-      <ValidationDisplay
-        valid={validState.valid}
-        msg={validState.msg}
-      />
+    <Stack tokens={{childrenGap: 6, padding: 4}}>
       <Stack verticalAlign={"end"} tokens={{childrenGap: 8}}>
         <Dropdown
           options={yearOptions}
