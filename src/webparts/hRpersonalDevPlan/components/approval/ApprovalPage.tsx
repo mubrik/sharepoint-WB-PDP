@@ -70,43 +70,53 @@ const ApprovalPage = ({userType, setAppData, setMainPageState}:IApprovalProps): 
   const setNotification = useNotificationHook();
   // effect to fecth data
   React.useEffect(() => {
-    // var
-    let result:Promise<any[]>;
-    // call method based on type of user
-    switch (userType) {
-      case "hr":
-        // do something
-         result = fetchServer.getHrList(email);
-        break;
-      case "gc":
-        // do something
-        result = fetchServer.getGroupHeadList(email);
-        break;
-      case "lineManager":
-        // do something
-        result = fetchServer.getLineManagerList(email);
-        break;
-      default:
-        break;
-    }
-    // work on result
-    result
-      .then(res => {
-        setStateData({
-          data: res,
-          status: "loaded"
+
+    if (stateData.status === "idle") {
+      // var
+      let result:Promise<any[]>;
+      // call method based on type of user
+      switch (userType) {
+        case "hr":
+          // do something
+           result = fetchServer.getHrList(email);
+          break;
+        case "gc":
+          // do something
+          result = fetchServer.getGroupHeadList(email);
+          break;
+        case "lineManager":
+          // do something
+          result = fetchServer.getLineManagerList(email);
+          break;
+        default:
+          break;
+      }
+      // work on result
+      result
+        .then(res => {
+          setStateData({
+            data: res,
+            status: "loaded"
+          });
+        })
+        .catch(error => {
+          setNotification({show: true, isError: true, msg:"Error loading list", errorObj: error});
         });
-      })
-      .catch(error => {
-        setNotification({show: true, isError: true, msg:"Error loading list", errorObj: error});
-      });
-  }, []);
+    }
+  }, [stateData.status]);
 
   // handlers
   const handleApprovalAction = (id: number, param: "Approved"|"Rejected"): void => {
     // call server
     fetchServer.approveRejectEntry(id, userType, param)
-    .then(_ => setNotification({show: true, isError: false, msg:"Item status updated"}))
+    .then(_ => {
+      setNotification({show: true, isError: false, msg:"Item status updated"});
+      // update state to reload
+      setStateData(prevValue => ({
+        ...prevValue,
+        status: "idle"
+      }));
+    })
     .catch(error => {
       setNotification({show: true, isError: true, msg:"Error Approving Item", errorObj: error});
     });
