@@ -182,6 +182,7 @@ const TrainingForm = ({trainData, setTrainData, validState, setValidState}: ITra
             type={"number"}
             label={"Training Status"}
             min={0}
+            step={1}
             max={100}
             value={stateData.trainingStatus}
             onChange={(event, newValue) => handleInputChange("trainingStatus", event, newValue)}

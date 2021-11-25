@@ -48,9 +48,13 @@ const MainPage:React.FunctionComponent<IHRpersonalDevPlanProps> = () => {
       });
     })
     .catch(error => {
+      if (error instanceof Error && "message" in error) {
+        setNotification({show: true, isError: true, msg: error.message, errorObj: error});
+      }
       setNotification({show: true, isError: true, msg:"Error getting user, Network?", errorObj: error});
     });
   }, []);
+  
   // effect for app data segtting
   React.useEffect(() => {
     if ("email" in userData) {

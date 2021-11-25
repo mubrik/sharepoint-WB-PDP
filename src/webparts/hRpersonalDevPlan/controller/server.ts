@@ -1,4 +1,4 @@
-import { sp } from "@pnp/sp/presets/core";
+import { IList, sp } from "@pnp/sp/presets/core";
 import "@pnp/sp/webs";
 import "@pnp/sp/site-users";
 import "@pnp/sp/profiles";
@@ -15,6 +15,11 @@ import {IFormYearData, IFormTrainingData, IFormBioData, IFormUserData} from "../
 class Server implements IServer{
 
   public fetch = sp;
+  private planList: IList;
+
+  public constructor () {
+    this.planList = this.fetch.web.lists.getByTitle("HR-PDP-SINGLE");
+  }
 
   public testing = (): Promise<any> => {
     return new Promise((resolve, reject) => {
@@ -26,13 +31,35 @@ class Server implements IServer{
   public getUser = async ():Promise<IUserData> => {
 
     try {
-      // get profile, user and groups
-      const profile = await this.fetch.profiles.myProperties.get();
-      const user = await this.fetch.web.currentUser();
-      const groups = await this.fetch.web.currentUser.groups();
+      const userDetails = 
+        await Promise.allSettled([
+          this.fetch.profiles.myProperties.get(),
+          this.fetch.web.currentUser(),
+          this.fetch.web.currentUser.groups()
+        ]);
+      // error check
+      userDetails.forEach((promise) => {
+          // if promisee not fulfiled throw error
+          if (promise.status === "rejected") {
+            throw new Error("Error getting user data, refresh or contact IT");
+          }
+        });
+      // destructure
+      // const [{value: profileData}, {value: userData}, {value: groupData}] = 
+      //   userDetails;
+      // somehow, typescript doesnt figure out the promise is fufilled after error check
+      // typescript issue 42012 on github, i'll keep this here for now in case it gets updated, but imlement differently
+
+      const [_profile, _user, _groups] = userDetails;
+
+      const profile = _profile.status === "fulfilled" ? _profile.value : null;
+      const user = _user.status === "fulfilled" ? _user.value : null;
+      const groups = _groups.status === "fulfilled" ? _groups.value : null;
+      
       // vars
       const managersArr: string[] = profile.ExtendedManagers;
       let manager = "";
+
       // for fse
       if (profile.Title === "Field Support Engineer") {
         // 2nd item to skip first
@@ -48,6 +75,7 @@ class Server implements IServer{
         // store email
         manager = managerProfile.Email;
       }
+
       // groups
       // arr
       const grpArr: string[] = [];
@@ -79,8 +107,7 @@ class Server implements IServer{
   public getUserList = (username: string): Promise<ISPFullObj[]> => {
     // async
     return new Promise((resolve, reject) => {
-      this.fetch.web.lists.getByTitle("HR-PDP-SINGLE")
-        .items.select()
+      this.planList.items.select()
         .filter("username eq '" + username + "'").get()
         .then(result => {
           resolve(result);
@@ -94,8 +121,7 @@ class Server implements IServer{
   public getListById = (id: number): Promise<ISPFullObj> => {
     // async
     return new Promise((resolve, reject) => {
-      this.fetch.web.lists.getByTitle("HR-PDP-SINGLE")
-        .items.select()
+      this.planList.items.select()
         .getById(id).get()
         .then(result => {
           resolve(result);
@@ -127,8 +153,7 @@ class Server implements IServer{
   public getHrList = (username: string): Promise<ISPFullObj[]> => {
 
     return new Promise((resolve, reject) => {
-      this.fetch.web.lists.getByTitle("HR-PDP-SINGLE")
-        .items.select()
+      this.planList.items.select()
         .filter("hrManager eq '" + username + "'").get()
         .then(result => {
           resolve(result);
@@ -142,8 +167,7 @@ class Server implements IServer{
   public getLineManagerList = (username: string): Promise<ISPFullObj[]>  => {
 
     return new Promise((resolve, reject) => {
-      this.fetch.web.lists.getByTitle("HR-PDP-SINGLE")
-        .items.select()
+      this.planList.items.select()
         .filter("lineManager eq '" + username + "'").get()
         .then(result => {
           resolve(result);
@@ -157,8 +181,7 @@ class Server implements IServer{
   public getGroupHeadList = (username: string): Promise<ISPFullObj[]>  => {
 
     return new Promise((resolve, reject) => {
-      this.fetch.web.lists.getByTitle("HR-PDP-SINGLE")
-        .items.select()
+      this.planList.items.select()
         .filter("gcio eq '" + username + "'").get()
         .then(result => {
           resolve(result);
@@ -189,7 +212,7 @@ class Server implements IServer{
         reject(new Error("username isnt available"));
       }
       // list and add item
-      this.fetch.web.lists.getByTitle("HR-PDP-SINGLE").items.add(_draft)
+      this.planList.items.add(_draft)
         .then(res => {
           console.log(res);
           resolve(true);
@@ -204,8 +227,7 @@ class Server implements IServer{
 
     return new Promise((resolve, reject) => {
 
-      this.fetch.web.lists.getByTitle("HR-PDP-SINGLE")
-        .items.getById(id).update(param)
+      this.planList.items.getById(id).update(param)
         .then(result => {
           console.log(result);
           resolve(true);
@@ -221,8 +243,7 @@ class Server implements IServer{
 
     return new Promise((resolve, reject) => {
 
-      this.fetch.web.lists.getByTitle("HR-PDP-SINGLE")
-        .items.getById(id).delete()
+      this.planList.items.getById(id).delete()
         .then(result => {
           console.log(result);
           resolve(true);
@@ -261,8 +282,7 @@ class Server implements IServer{
           break;
       }
 
-      this.fetch.web.lists.getByTitle("HR-PDP-SINGLE")
-        .items.getById(id).update(updateObj)
+      this.planList.items.getById(id).update(updateObj)
         .then(_ => {
           resolve(true);
         })

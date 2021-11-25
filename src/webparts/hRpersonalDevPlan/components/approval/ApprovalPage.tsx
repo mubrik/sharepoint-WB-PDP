@@ -173,7 +173,8 @@ const ApprovalPage = ({userType, setAppData, setMainPageState}:IApprovalProps): 
                 {
                   key: 'viewEvent',
                   text: 'View',
-                  iconProps: { iconName: 'PreviewLink' }
+                  iconProps: { iconName: 'PreviewLink' },
+                  onClick: () => handleViewClick(param.Id)
                 }
               ],
               directionalHintFixed: true
