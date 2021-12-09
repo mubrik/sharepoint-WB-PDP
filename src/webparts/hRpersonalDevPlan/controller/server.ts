@@ -6,8 +6,10 @@ import "@pnp/sp/site-groups";
 import "@pnp/sp/site-groups/web";
 import "@pnp/sp/sputilities";
 import { IEmailProperties } from "@pnp/sp/sputilities";
+// bleach
+import { escape } from "@microsoft/sp-lodash-subset";
 // types
-import { IServer, IPartialSPdata, IUserData, ISPFullObj} from "./serverTypes";
+import { IServer, IUserData, ISPFullObj} from "./serverTypes";
 import {IFormYearData, IFormTrainingData, IFormBioData, IFormUserData} from "../components/dataTypes";
 
 
@@ -200,7 +202,7 @@ class Server implements IServer{
       // partial data
       const _partial = this.processSharepointData(yearData, trainData);
       // mutate
-      const _draft = {
+      const _draft: ISPFullObj = {
         ...userData,
         ...stakeHolderData,
         ..._partial
@@ -316,11 +318,11 @@ class Server implements IServer{
     });
   }
 
-  private processSharepointData = (yearData: IFormYearData, trainData: IFormTrainingData): IPartialSPdata => {
+  private processSharepointData = (yearData: IFormYearData, trainData: IFormTrainingData): Record<string, string|number> => {
     // state
     const _spData = {
-      "yearsTotal": Object.keys(yearData).length + "",
-      "trainingTotal": Object.keys(trainData).length + ""
+      "yearsTotal": Object.keys(yearData).length,
+      "trainingTotal": Object.keys(trainData).length
     };
     // loop over year data
     Object.keys(yearData).forEach((_year, _index) => {
@@ -343,10 +345,10 @@ class Server implements IServer{
       const trainStatus = "trainingStatus" + num;
       const trainObj = "trainingObjective" + num;
       // mutate
-      _spData[trainTitle] = trainData[_training].trainingTitle;
+      _spData[trainTitle] = escape(trainData[_training].trainingTitle);
       _spData[trainDuration] = trainData[_training].trainingDuration;
-      _spData[trainStatus] = trainData[_training].trainingStatus;
-      _spData[trainObj] = trainData[_training].trainingObjective;
+      _spData[trainStatus] = Number(trainData[_training].trainingStatus);
+      _spData[trainObj] = escape(trainData[_training].trainingObjective);
     });
 
     return _spData;

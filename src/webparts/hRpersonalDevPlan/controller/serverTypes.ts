@@ -17,7 +17,7 @@ export interface IServer {
     yearData: IFormYearData,
     trainData: IFormTrainingData,
     stakeHolderData: IFormBioData): Promise<boolean>;
-  updateEntry(id: number, param: object): Promise<boolean>;
+  updateEntry(id: number, param: Record<string, string|number>): Promise<boolean>;
   deleteEntry(id: number): Promise<boolean>;
   approveRejectEntry(id: number, userType: string, param: "Approved"|"Rejected"): Promise<boolean>;
 }
@@ -34,16 +34,20 @@ export interface ISPBioDataObj {
 export interface ISPTrainingDataObj{
   trainingTitle1?: string;
   trainingObjective1?: string;
-  trainingStatus1?: string;
+  trainingStatus1?: number;
   trainingDuration1?: string;
   trainingTitle2?: string;
   trainingObjective2?: string;
-  trainingStatus2?: string;
+  trainingStatus2?: number;
   trainingDuration2?: string;
   trainingTitle3?: string;
   trainingObjective3?: string;
-  trainingStatus3?: string;
+  trainingStatus3?: number;
   trainingDuration3?: string;
+  trainingTitle4?: string;
+  trainingObjective4?: string;
+  trainingStatus4?: number;
+  trainingDuration4?: string;
 }
 
 export interface ISPYearGoalsObj{
@@ -78,8 +82,4 @@ export interface IUserData {
   isUserHr? : boolean;
   isUserManager? : boolean;
   isUserGroupHead? : boolean;
-}
-
-export interface IPartialSPdata {
-  [key: string]: string;
 }
