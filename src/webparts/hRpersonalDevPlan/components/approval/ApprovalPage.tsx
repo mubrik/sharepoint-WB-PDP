@@ -13,17 +13,11 @@ import {fetchServer} from "../../controller/server";
 // types
 import {IUserData, ISPFullObj} from "../../controller/serverTypes";
 import {IStateData, IApprovalProps} from "./propTypes";
+// query
+import { useMediaQuery } from "react-responsive";
+
 // styles
 const classes = mergeStyleSets({
-  itemContainer: {
-    display: "flex",
-    alignItems: "center",
-    borderRadius: "4px",
-    margin: "4px",
-    cursor: "pointer",
-    boxShadow: "0px 0px 4px 0px #433f7e7d",
-    overflow: "hidden",
-  },
   itemUsername: {
     padding: "5px",
     margin: "2px 2px"
@@ -33,25 +27,36 @@ const classes = mergeStyleSets({
     margin: "2px 2px",
     borderLeft: "1px solid black",
     borderRight: "1px solid black",
-    color: "green"
+    color: "green",
+    textAlign: "center"
   },
   itemStatusPending: {
     padding: "5px",
     margin: "2px 2px",
     borderLeft: "1px solid black",
     borderRight: "1px solid black",
-    color: "#117799"
+    color: "#117799",
+    textAlign: "center"
   },
   itemStatusRejected: {
     padding: "5px",
     margin: "2px 2px",
     borderLeft: "1px solid black",
     borderRight: "1px solid black",
-    color: "red"
+    color: "red",
+    textAlign: "center"
   },
   itemButtonContainer: {
-    display: "flex",
-    marginLeft: "auto"
+    padding: "2px",
+    gap: "4px"
+  },
+  itemShadow: {
+    alignItems: "center",
+    borderRadius: "4px",
+    margin: "4px",
+    cursor: "pointer",
+    boxShadow: "0px 0px 4px 0px #433f7e7d",
+    overflow: "hidden",
   }
 });
 
@@ -66,6 +71,8 @@ const ApprovalPage = ({userType, setAppData, setMainPageState}:IApprovalProps): 
   // context data
   const {email}: IUserData =
     React.useContext(UserContext);
+  // responsive
+  const medium = useMediaQuery({ maxWidth: 940 });
   // notify
   const setNotification = useNotificationHook();
   // effect to fecth data
@@ -143,18 +150,21 @@ const ApprovalPage = ({userType, setAppData, setMainPageState}:IApprovalProps): 
     };
 
     return(
-      <div className={classes.itemContainer} key={index}>
-        <p className={classes.itemUsername}>{param.username}</p>
+      <Stack horizontal={medium ? false : true} key={index} className={classes.itemShadow}>
+        <Stack.Item shrink={4} grow className={classes.itemUsername}>{param.username}</Stack.Item>
         <p className={statusClass[param.hrManagerStatus]}>HR Status: {param.hrManagerStatus}</p>
         <p className={statusClass[param.lineManagerStatus]}>Line-Manager Status: {param.lineManagerStatus}</p>
         <p className={statusClass[param.gcioStatus]}>GCIO Status: {param.gcioStatus}</p>
-        <div className={classes.itemButtonContainer}>
+        <Stack 
+          horizontal
+          className={classes.itemButtonContainer}
+          horizontalAlign={"space-between"}
+        >
           <DefaultButton
+            split
             text={"View Plan"}
             onClick={() => handleViewClick(param.Id)}
-          />
-          <DefaultButton
-            iconProps={{ iconName: 'Add' }}
+            iconProps={{ iconName: 'View' }}
             menuAs={_getMenu}
             menuProps={{
               items: [
@@ -169,19 +179,13 @@ const ApprovalPage = ({userType, setAppData, setMainPageState}:IApprovalProps): 
                   text: 'Reject',
                   iconProps: { iconName: 'Cancel' },
                   onClick: () => handleApprovalAction(param.Id, "Rejected")
-                },
-                {
-                  key: 'viewEvent',
-                  text: 'View',
-                  iconProps: { iconName: 'PreviewLink' },
-                  onClick: () => handleViewClick(param.Id)
                 }
               ],
               directionalHintFixed: true
             }}
           />
-        </div>
-      </div>
+        </Stack>
+      </Stack>
     );
   };
   // for list generation

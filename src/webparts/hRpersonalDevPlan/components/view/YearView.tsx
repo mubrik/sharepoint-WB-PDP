@@ -2,10 +2,13 @@ import * as React from "react";
 // ui
 import {
   IStackStyles, Stack, 
-  Label, TextField, StackItem
+  Label, StackItem
 } from "office-ui-fabric-react";
 // prop type
 import {IBaseViewCompProps} from "./propTypes";
+// custom
+import ResponsiveTextFieldRO from "../utils/ResponsiveTextROField";
+
 // styles
 const stackStyles: IStackStyles = {
   root: {
@@ -32,8 +35,8 @@ const YearView = ({viewData}:IBaseViewCompProps): JSX.Element => {
 
       compArr.push(
         <Stack tokens={{childrenGap: 6, padding:5}}>
-          <TextField readOnly key={year} prefix={"Year:"} value={viewData[year]}/>
-          <TextField readOnly autoAdjustHeight multiline key={year} prefix={"Goal:"} value={viewData[yearGol]}/>
+          <ResponsiveTextFieldRO readOnly key={year} prefix={"Year:"} value={viewData[year]}/>
+          <ResponsiveTextFieldRO readOnly autoAdjustHeight multiline key={year} prefix={"Goal:"} value={viewData[yearGol]}/>
         </Stack>
       );
     }

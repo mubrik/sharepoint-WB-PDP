@@ -6,8 +6,6 @@ import "@pnp/sp/site-groups";
 import "@pnp/sp/site-groups/web";
 import "@pnp/sp/sputilities";
 import { IEmailProperties } from "@pnp/sp/sputilities";
-// bleach
-import { escape } from "@microsoft/sp-lodash-subset";
 // types
 import { IServer, IUserData, ISPFullObj} from "./serverTypes";
 import {IFormYearData, IFormTrainingData, IFormBioData, IFormUserData} from "../components/dataTypes";
@@ -345,10 +343,10 @@ class Server implements IServer{
       const trainStatus = "trainingStatus" + num;
       const trainObj = "trainingObjective" + num;
       // mutate
-      _spData[trainTitle] = escape(trainData[_training].trainingTitle);
+      _spData[trainTitle] = trainData[_training].trainingTitle;
       _spData[trainDuration] = trainData[_training].trainingDuration;
       _spData[trainStatus] = Number(trainData[_training].trainingStatus);
-      _spData[trainObj] = escape(trainData[_training].trainingObjective);
+      _spData[trainObj] = trainData[_training].trainingObjective;
     });
 
     return _spData;

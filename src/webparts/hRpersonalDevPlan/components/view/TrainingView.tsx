@@ -2,7 +2,7 @@ import * as React from "react";
 // ui
 import {
   IDropdownOption, Dropdown, Stack,
-  TextField, mergeStyleSets, PrimaryButton, Label
+  TextField, PrimaryButton
 } from "office-ui-fabric-react";
 // server
 import {fetchServer} from "../../controller/server";
@@ -10,6 +10,8 @@ import {fetchServer} from "../../controller/server";
 import useNotificationHook from "../notification/hook";
 // prop type
 import {ITrainingCompProps} from "./propTypes";
+// custom
+import ResponsiveTextFieldRO from "../utils/ResponsiveTextROField";
 interface ITrainDropdown extends IDropdownOption {
   key: string;
   text: string;
@@ -106,12 +108,12 @@ const TrainingView  = ({viewData, setViewStateData, appData}:ITrainingCompProps)
         selectedTraining &&
         <>
           <Stack wrap horizontal horizontalAlign={"stretch"} tokens={{childrenGap: 8}}>
-            <TextField readOnly prefix="Title" value={viewData[selectedTraining["trainTitle"]]}/>
-            <TextField readOnly prefix="Duration" value={viewData[selectedTraining["trainDuration"]]}/>
-            <TextField readOnly prefix="Status" suffix="%" value={viewData[selectedTraining["trainStatus"]]}/>
+            <ResponsiveTextFieldRO readOnly prefix="Title" value={viewData[selectedTraining["trainTitle"]]}/>
+            <ResponsiveTextFieldRO readOnly prefix="Duration" value={viewData[selectedTraining["trainDuration"]]}/>
+            <ResponsiveTextFieldRO readOnly prefix="Status" suffix="%" value={viewData[selectedTraining["trainStatus"]]}/>
           </Stack>
           <Stack horizontalAlign={"stretch"} tokens={{childrenGap: 8}}>
-            <TextField 
+            <ResponsiveTextFieldRO 
               readOnly 
               multiline 
               autoAdjustHeight 

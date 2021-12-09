@@ -2,11 +2,14 @@ import * as React from "react";
 // fabric ui
 import {
   Stack, Label,
-  IStackStyles, TextField
+  IStackStyles,
 } from "office-ui-fabric-react";
 // prop type
 import {IBaseViewCompProps} from "./propTypes";
 import { StackItem } from "@microsoft/sp-property-pane/node_modules/@microsoft/office-ui-fabric-react-bundle";
+// custom
+import ResponsiveTextFieldRO from "../utils/ResponsiveTextROField";
+
 // styles
 const stackStyles: IStackStyles = {
   root: {
@@ -26,35 +29,35 @@ const BioView = ({viewData}: IBaseViewCompProps): JSX.Element => {
         </Label>
       </StackItem>
       <Stack tokens={{childrenGap:8}} horizontalAlign={"stretch"}>
-        <TextField 
+        <ResponsiveTextFieldRO 
           readOnly 
           multiline
           autoAdjustHeight
-          prefix="Your Strengths and Weaknesses:" 
+          prefix="Your Strengths and Weaknesses:"
           value={viewData.stakeHolder1} 
         />
-        <TextField 
+        <ResponsiveTextFieldRO 
           readOnly 
           multiline
           autoAdjustHeight 
           prefix="Stakeholders Requirements:" 
           value={viewData.stakeHolder2} 
         />
-        <TextField 
+        <ResponsiveTextFieldRO 
           readOnly 
           multiline
           autoAdjustHeight 
           prefix="What is Next:" 
           value={viewData.strengthWeakness} 
         />
-        <TextField 
+        <ResponsiveTextFieldRO 
           readOnly 
           multiline
           autoAdjustHeight 
           prefix="Steps Taken to reach Goal:" 
           value={viewData.stepsTaken} 
         />
-        <TextField 
+        <ResponsiveTextFieldRO 
           readOnly 
           multiline
           autoAdjustHeight 
