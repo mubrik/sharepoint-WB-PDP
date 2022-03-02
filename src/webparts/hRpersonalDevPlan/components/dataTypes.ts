@@ -1,9 +1,10 @@
 
-export const initialBioFormData = {
-  strengthWeakness: "",
+export const initialBioFormData: IFormBioData = {
   stakeHolder1: "",
   stakeHolder2: "",
-  stakeHolder3: "",
+  continousImprovement: "",
+  strengthWeakness: "",
+  stepsTaken: ""
 };
 
 export const initialTrainingFormData = {
@@ -15,11 +16,23 @@ export const initialTrainingFormData = {
 
 // validation obj
 export const initialValidObj = {
-  bioData: {valid:false, msg: ""},
-  yearData: {valid:false, msg: ""},
-  trainData: {valid:false, msg: ""},
-  state: {valid: false, msg: ""}
+  bioData: {valid:false, msg: "", location: "Bio-Form"},
+  yearData: {valid:false, msg: "", location: "Year-Form"},
+  trainData: {valid:false, msg: "", location: "Training-Form"},
+  state: {valid: false, msg: "", location: ""}
 };
+
+export const initialAppData:IAppData = {
+  draftAvailable: false,
+  viewPageMode: "normal",
+  linkedItemId: null
+};
+
+export interface IAppData {
+  draftAvailable: boolean;
+  viewPageMode: "normal"|"linked";
+  linkedItemId: number|null;
+}
 
 export interface IValidState {
   bioData: IValidationObj;
@@ -31,6 +44,7 @@ export interface IValidState {
 export interface IValidationObj {
   valid: boolean;
   msg: string;
+  location?: string;
 }
 // interface for form year data
 export interface IFormYearData {
@@ -44,10 +58,9 @@ export interface IFormTrainingData {
 export interface IFormBioData {
   stakeHolder1: string;
   stakeHolder2: string;
-  stakeHolder3: string;
   strengthWeakness: string;
-  // continousImprovement: string;
-  // stepsTaken: string;
+  continousImprovement: string;
+  stepsTaken: string;
 }
 
 // interface for single training data
@@ -56,4 +69,10 @@ export interface ISingleTrainingData {
   trainingObjective: string;
   trainingStatus: string;
   trainingDuration: string;
+}
+
+export interface IFormUserData {
+  username: string;
+  lineManager: string;
+  jobTitle: string;
 }

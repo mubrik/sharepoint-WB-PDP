@@ -1,27 +1,53 @@
 import * as React from "react";
 // fabric ui
 import {TextField,
-   Stack, PrimaryButton,
-   Dropdown
- } from "office-ui-fabric-react";
-
+  Stack, PrimaryButton,
+  Dropdown, mergeStyleSets,
+  IDropdownOption, IconButton
+} from "office-ui-fabric-react";
+import ResponsivePrimaryButton from "../utils/ResponsiveButton";
 // components and types
-import {IYearControlProps,} from "./propTypes";
-import ValidationDisplay from "../utils/ValidationDisplay";
+import {IYearControlProps} from "./propTypes";
+import useNotificationHook from "../notification/hook";
+
+// styles
+const gridCLasses = mergeStyleSets({
+  mainGrid: {
+    display: "flex",
+    flexDirection: "row",
+    flexWrap: "wrap",
+    width: "auto",
+    overflow: "hidden",
+  },
+  itemContainer: {
+    display: "flex",
+    alignItems: "center",
+    borderRadius: "4px",
+    margin: "4px",
+    cursor: "pointer",
+    boxShadow: "0px 0px 4px 0px #433f7e7d",
+    overflow: "hidden",
+  },
+  itemLabel: {
+    padding: "5px"
+  }
+});
 
 
 const PersonalInfoForm = ({yearData, setYearData, validState, setValidState}: IYearControlProps): JSX.Element => {
 
   // states
   const [itemsArray, setItemsArray] = React.useState<string[]>([]);
-  // const [yearList, setYearList] = React.useState(["2021", "2022", "2023"]);
+  const [yearOptions, setYearOptions] = React.useState<IDropdownOption[]>([]);
   const [selectedYear, setSelectedYear] = React.useState(null);
   const [textField, setTextField] = React.useState("");
+  // notify 
+  const notify = useNotificationHook();
 
   // effect for validation
   React.useEffect(() => {
     // items
-    let _items = [...itemsArray];
+    const _items = [...itemsArray];
     // not valid
     if (_items.length === 0) {
 
@@ -29,7 +55,8 @@ const PersonalInfoForm = ({yearData, setYearData, validState, setValidState}: IY
         ...prevState,
         yearData: {
           valid: false,
-          msg: "Goals for the year cant be empty"
+          msg: "Goals for the year can not be empty, add a goal for a year",
+          location: "Year-Form"
         }
       }));
     } else {
@@ -44,9 +71,10 @@ const PersonalInfoForm = ({yearData, setYearData, validState, setValidState}: IY
 
     }
   }, [itemsArray]);
+
   // effect to update item array on mount
   React.useEffect(() => {
-    let _items = [...itemsArray];
+    const _items = [...itemsArray];
     // loop over
     Object.keys(yearData).forEach(_year => {
       if (!_items.includes(_year)) {
@@ -57,42 +85,54 @@ const PersonalInfoForm = ({yearData, setYearData, validState, setValidState}: IY
     setItemsArray(_items);
   },[yearData]);
 
-  // year options, const for now
-  const yearOptions = [
-    {key: "2020", text: "2020"},
-    {key: "2021", text: "2021"},
-    {key: "2022", text: "2022"},
-  ];
+  // effect to set years options
+  React.useEffect(() => {
+    // curr year
+    const date = new Date();
+    // year string
+    const year1 = date.getFullYear() + "";
+    const year2 = date.getFullYear() + 1 + "";
+    const year3 = date.getFullYear() + 2 + "";
+    // loop
+    setYearOptions([
+      {key: year1, text: year1},
+      {key: year2, text: year2},
+      {key: year3, text: year3},
+    ]);
+  }, []);
 
   // handlers
-  const handleAddYearItem = () => {
+  const handleAddYearItem = (): void => {
     if (selectedYear === null) return;
     // year
-    let _year = selectedYear ? selectedYear.key : null;
+    const _year = selectedYear ? selectedYear.key : null;
     // item array
-    let itemArr = [...itemsArray];
+    const itemArr = [...itemsArray];
     // max is 3 years
     if (itemArr.includes(_year)) {
+      notify({msg: `Year goal for ${_year} exists`, type: "info", show: true});
       return;
     }
     // add item
     itemArr.push(_year);
     // set state
     setItemsArray(itemArr);
-
+    // set year data
     setYearData(oldState => ({
       ...oldState,
       [_year]: textField
     }));
+    // clear text field
+    setTextField("");
 
   };
 
-  const handleRemoveItem = (param: string) => {
+  const handleRemoveItem = (param: string): void => {
     // item array
-    let itemArr = [...itemsArray];
-    let state = {...yearData};
+    const itemArr = [...itemsArray];
+    const state = {...yearData};
     // filter
-    let newArr = itemArr.filter(_year => _year !== param);
+    const newArr = itemArr.filter(_year => _year !== param);
     // mutate state
     delete state[param];
     // set state
@@ -101,44 +141,49 @@ const PersonalInfoForm = ({yearData, setYearData, validState, setValidState}: IY
   };
 
   // generate readonly text field
-  const generateTextField = (param: string) => {
+  const generateTextField = (param: string): JSX.Element => {
     return(
-      <Stack horizontal tokens={{childrenGap: 8}}>
-        <TextField key={param} value={yearData[param] as string} label={param} readOnly/>
-        <PrimaryButton text={"clear"} onClick={() => handleRemoveItem(param)}/>
+      <Stack horizontalAlign="stretch" tokens={{childrenGap: 6, padding: 2}}>
+        <TextField key={param} prefix="Year:" value={param} readOnly/>
+        <TextField key={param+0} multiline prefix="Goal:" value={yearData[param] as string} readOnly/>
+        <ResponsivePrimaryButton 
+          type="default"
+          text="Clear" 
+          iconProps={{iconName: "Clear"}} 
+          title="Clear" 
+          onClick={() => handleRemoveItem(param)}
+        />
       </Stack>
     );
   };
 
   return(
-    <Stack>
-      <ValidationDisplay
-        valid={validState.valid}
-        msg={validState.msg}
-      />
-      <Stack horizontal verticalAlign={"end"} tokens={{childrenGap: 8}}>
+    <Stack tokens={{childrenGap: 6, padding: 4}}>
+      <Stack verticalAlign={"end"} tokens={{childrenGap: 8}}>
         <Dropdown
           options={yearOptions}
-          label={"year"}
+          label={"Select Year"}
           selectedKey={selectedYear ? selectedYear.key : undefined}
           onChange={(_, item) => setSelectedYear(item)}
         />
         <TextField
+          multiline
           value={textField}
           onChange={(_, newValue) => setTextField(newValue)}
           label={"Goal for the Year"}
+          placeholder={"What are your dreams – envision where you would like your career to be at specific point of time."}
         />
         <PrimaryButton
-          text={"add"}
+          text={"Add Goal for selected Year"}
           onClick={handleAddYearItem}
-          disabled={selectedYear === null || textField === ""}
+          disabled={selectedYear === null || textField === "" || itemsArray.length === 3}
         />
       </Stack>
-      <Stack>
+      <div className={gridCLasses.mainGrid}>
         {
           itemsArray.map(_year => generateTextField(_year))
         }
-      </Stack>
+      </div>
     </Stack>
   );
 };
