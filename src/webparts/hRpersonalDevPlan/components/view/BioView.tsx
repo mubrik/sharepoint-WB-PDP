@@ -2,11 +2,10 @@ import * as React from "react";
 // fabric ui
 import {
   Stack, Label,
-  IStackStyles,
+  IStackStyles, StackItem
 } from "office-ui-fabric-react";
 // prop type
 import {IBaseViewCompProps} from "./propTypes";
-import { StackItem } from "@microsoft/sp-property-pane/node_modules/@microsoft/office-ui-fabric-react-bundle";
 // custom
 import ResponsiveTextFieldRO from "../utils/ResponsiveTextROField";
 
