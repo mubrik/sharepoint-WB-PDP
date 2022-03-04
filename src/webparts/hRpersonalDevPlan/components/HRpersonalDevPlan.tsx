@@ -10,6 +10,7 @@ import ApprovalPage from "./approval/ApprovalPage";
 import ErrorBoundary from "./error/ErrorBoundary";
 import UserContext from './userContext/UserContext';
 import NotificationContext from "./notification/NotificationBarContext";
+import AppSettingContext from './appSetting/AppSettingContext';
 import {useNotification} from "./notification/NotificationBarContext";
 import AboutPage from "./about/AboutPage";
 // types
@@ -19,15 +20,13 @@ import {initialAppData, IAppData} from "./dataTypes";
 
 // context for user data
 // export const UserContext = React.createContext<IUserData>(null);
-export const AppContext = React.createContext<IAppData>(null);
+// export const AppContext = React.createContext<IAppData>(null);
 
 // main component
-const MainPage:React.FunctionComponent<IHRpersonalDevPlanProps> = () => {
+const MainPage = ({ context }: IHRpersonalDevPlanProps): JSX.Element => {
 
   // page state
   const [pageState, setPageState] = React.useState("plan");
-  const [userData, setUserData] = React.useState<IUserData>({});
-  const [appData, setAppData] = React.useState<IAppData>(initialAppData);
 
   // webpart width
   React.useEffect(() => {
@@ -37,44 +36,27 @@ const MainPage:React.FunctionComponent<IHRpersonalDevPlanProps> = () => {
       console.log(error);
     }
   }, []);
-  
-  // effect for app data segtting
-  React.useEffect(() => {
-    if ("email" in userData) {
-      // get
-      fetchServer.userDraftExists(userData.email)
-        .then(result => setAppData(prevValue => ({
-          ...prevValue,
-          draftAvailable: result
-        })));
-    }
-  }, [userData]);
 
   return (
     <ErrorBoundary>
     <NotificationContext>
     <UserContext>
+    <AppSettingContext>
       <Stack tokens={{ childrenGap: 8 }}>
         <NavBar pageState={pageState} setPageState={setPageState}/>
         {
           pageState === "new" &&
-          <NewPage
-            appData={appData}
-            setAppData={setAppData}
-          />
+          <NewPage/>
         }
         {
           pageState === "plan" &&
-          <ViewPage
-            appData={appData}
-            setAppData={setAppData}
-          />
+          <ViewPage/>
         }
         {
           pageState === "about" &&
           <AboutPage/>
         }
-        {
+        {/* {
           pageState === "hr" &&
           <ApprovalPage
             userType={"hr"}
@@ -97,8 +79,9 @@ const MainPage:React.FunctionComponent<IHRpersonalDevPlanProps> = () => {
             setAppData={setAppData}
             setMainPageState={setPageState}
           />
-        }
+        } */}
       </Stack>
+    </AppSettingContext>
     </UserContext>
     </NotificationContext>
     </ErrorBoundary>

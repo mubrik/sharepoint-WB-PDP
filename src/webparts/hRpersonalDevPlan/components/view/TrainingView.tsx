@@ -6,12 +6,16 @@ import {
 } from "office-ui-fabric-react";
 // server
 import {fetchServer} from "../../controller/server";
+// context
+import { useAppSettings } from "../appSetting/AppSettingContext";
 // notification
-import useNotificationHook from "../notification/hook";
+import { useNotification } from "../notification/NotificationBarContext";
 // prop type
-import {ITrainingCompProps} from "./propTypes";
+import { ISPFullObj } from "../../types/custom";
+import {IViewStateData} from "./propTypes";
 // custom
 import ResponsiveTextFieldRO from "../utils/ResponsiveTextROField";
+
 interface ITrainDropdown extends IDropdownOption {
   key: string;
   text: string;
@@ -21,13 +25,20 @@ interface ITrainDropdown extends IDropdownOption {
   trainObj: string;
 }
 
-const TrainingView  = ({viewData, setViewStateData, appData}:ITrainingCompProps): JSX.Element => {
+interface IComponentProps {
+  viewData: ISPFullObj;
+  setViewStateData: React.Dispatch<React.SetStateAction<ISPFullObj>>;
+}
+
+const TrainingView  = ({viewData, setViewStateData}: IComponentProps): JSX.Element => {
   // states
   const [trainOptions, setTrainOptions] = React.useState<ITrainDropdown[]>([]);
   const [selectedTraining, setSelectedTraining] = React.useState<null|ITrainDropdown>(null);
   const [statusValue, setStatusValue] = React.useState("");
+  // settings
+  const { viewPageMode } = useAppSettings();
   // notify
-  const setNotification = useNotificationHook();
+  const setNotification = useNotification();
 
   // effect to set training options
   React.useEffect(() => {
@@ -122,7 +133,7 @@ const TrainingView  = ({viewData, setViewStateData, appData}:ITrainingCompProps)
             />
           </Stack>
           {
-            appData.viewPageMode === "normal" &&
+            viewPageMode === "normal" &&
             <Stack horizontal horizontalAlign={"stretch"} verticalAlign={"end"} tokens={{childrenGap: 8}}>
               <TextField
                 type={"number"}
@@ -140,7 +151,6 @@ const TrainingView  = ({viewData, setViewStateData, appData}:ITrainingCompProps)
               />
             </Stack>
           }
-
         </>
       }
     </Stack>

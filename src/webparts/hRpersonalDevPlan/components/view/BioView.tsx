@@ -4,8 +4,8 @@ import {
   Stack, Label,
   IStackStyles, StackItem
 } from "office-ui-fabric-react";
-// prop type
-import {IBaseViewCompProps} from "./propTypes";
+// prop types
+import { ISPFullObj } from "../../types/custom";
 // custom
 import ResponsiveTextFieldRO from "../utils/ResponsiveTextROField";
 
@@ -17,7 +17,11 @@ const stackStyles: IStackStyles = {
   }
 };
 
-const BioView = ({viewData}: IBaseViewCompProps): JSX.Element => {
+interface IComponentProps {
+  viewData: ISPFullObj;
+}
+
+const BioView = ({ viewData }: IComponentProps): JSX.Element => {
 
   return(
     <Stack horizontalAlign={"stretch"} styles={stackStyles} tokens={{childrenGap: 6, padding: 6}}>

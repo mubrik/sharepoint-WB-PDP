@@ -4,8 +4,8 @@ import {
   IStackStyles, Stack, 
   Label, StackItem
 } from "office-ui-fabric-react";
-// prop type
-import {IBaseViewCompProps} from "./propTypes";
+// types
+import { ISPFullObj } from "../../types/custom";
 // custom
 import ResponsiveTextFieldRO from "../utils/ResponsiveTextROField";
 
@@ -17,7 +17,11 @@ const stackStyles: IStackStyles = {
   }
 };
 
-const YearView = ({viewData}:IBaseViewCompProps): JSX.Element => {
+interface IComponentProps {
+  viewData: ISPFullObj;
+}
+
+const YearView = ({ viewData }:IComponentProps): JSX.Element => {
 
   const _yearAmt = viewData.yearsTotal;
 

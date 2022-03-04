@@ -8,7 +8,8 @@ import {
 import {fetchServer} from "../../controller/server";
 import {IUserData} from "../../controller/serverTypes";
 // context
-import {UserContext} from "../HRpersonalDevPlan";
+import { useUserData } from "../userContext/UserContext";
+import { useAppSettings } from "../appSetting/AppSettingContext";
 // components and types
 import BioDataForm from "./BioDataForm";
 import TrainingForm from "./TrainingForm";
@@ -20,12 +21,12 @@ import {initialBioFormData,
   IFormBioData, IFormTrainingData,
 } from "../dataTypes";
 // notification
-import useNotificationHook from "../notification/hook";
+import {useNotification} from "../notification/NotificationBarContext";
 // utils
 import ResponsivePrimaryButton from "../utils/ResponsiveButton";
 
 // new page
-const NewPage = ({appData, setAppData}: INewPageProps): JSX.Element => {
+const NewPage = (): JSX.Element => {
   // states
   const [bioData, setBioData] = React.useState<IFormBioData>(initialBioFormData);
   const [yearData, setYearData] = React.useState<IFormYearData>({});
@@ -33,9 +34,10 @@ const NewPage = ({appData, setAppData}: INewPageProps): JSX.Element => {
   const [pageState, setPageState] = React.useState(0);
   const [validState, setValidState] = React.useState<IValidState>(initialValidObj);
   // context
-  const {displayName, email, manager, jobTitle}:IUserData = React.useContext(UserContext);
+  const { displayName, email, manager, jobTitle } = useUserData();
+  const { draftAvailable, setAppSettings } = useAppSettings();
   // notify
-  const notify = useNotificationHook();
+  const notify = useNotification();
   // effect for validation
   React.useEffect(() => {
     // valid
@@ -122,7 +124,7 @@ const NewPage = ({appData, setAppData}: INewPageProps): JSX.Element => {
     )
     .then(res => {
       if (res) {
-        setAppData(prevValue => ({
+        setAppSettings(prevValue => ({
           ...prevValue,
           draftAvailable: true
         }));
@@ -144,11 +146,11 @@ const NewPage = ({appData, setAppData}: INewPageProps): JSX.Element => {
         }
       </Stack>
       {
-        appData.draftAvailable &&
+        draftAvailable &&
         <div> You have a plan created</div>
       }
       {
-        !appData.draftAvailable &&
+        !draftAvailable &&
         <>
           <Stack>
             {

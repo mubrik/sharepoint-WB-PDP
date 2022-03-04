@@ -8,7 +8,8 @@ import {TextField,
 import ResponsivePrimaryButton from "../utils/ResponsiveButton";
 // components and types
 import {IYearControlProps} from "./propTypes";
-import useNotificationHook from "../notification/hook";
+// notification
+import { useNotification } from "../notification/NotificationBarContext";
 
 // styles
 const gridCLasses = mergeStyleSets({
@@ -42,7 +43,7 @@ const PersonalInfoForm = ({yearData, setYearData, validState, setValidState}: IY
   const [selectedYear, setSelectedYear] = React.useState(null);
   const [textField, setTextField] = React.useState("");
   // notify 
-  const notify = useNotificationHook();
+  const notify = useNotification();
 
   // effect for validation
   React.useEffect(() => {

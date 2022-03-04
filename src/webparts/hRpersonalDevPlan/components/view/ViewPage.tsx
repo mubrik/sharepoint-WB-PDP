@@ -3,102 +3,90 @@ import {Stack,
   PrimaryButton
 } from "office-ui-fabric-react";
 // contexts
-import {UserContext} from "../HRpersonalDevPlan";
+import { useUserData } from "../userContext/UserContext";
+import { useAppSettings } from "../appSetting/AppSettingContext";
+import { useDialog } from "../dialog/DialogContext";
 // types
-import {IViewStateData, IViewPageProps} from "./propTypes";
+import { ISPFullObj } from "../../types/custom";
+// server
 import {fetchServer} from "../../controller/server";
-import {IUserData} from "../../controller/serverTypes";
 // components
 import YearView from "./YearView";
 import TrainingView from "./TrainingView";
 import BioView from "./BioView";
-import DialogOption from '../utils/DialogOption';
 // notification
-import useNotificationHook from "../notification/hook";
+import {useNotification} from "../notification/NotificationBarContext";
 
-const initialViewStateData: IViewStateData = {
-  data: {},
-  isDataAvail: false,
-  status: "idle"
-};
+type viewPageStatus = "idle" | "loaded" | "loading" | "empty" |"error";
 
-const ViewPage = ({appData, setAppData}: IViewPageProps):JSX.Element => {
-  // server req context
-  const {email}:IUserData = React.useContext(UserContext);
+const ViewPage = ():JSX.Element => {
+
   // states
-  const [stateData, setStateData] = React.useState(initialViewStateData);
-  const [dialogProps, setDialogProps] = React.useState({
-    show: false,
-    title: "",
-    subtitle: "",
-    callback: () => {console.log("placeholder");},
-    dtype: "close"
-  });
+  const [stateData, setStateData] = React.useState<ISPFullObj>({} as ISPFullObj);
+  const [loadingStatus, setLoadingStatus] = React.useState<viewPageStatus>("idle");
+
+  // userdata
+  const { email } = useUserData();
+  // app settings
+  const { viewPageMode, linkedItemId, setAppSettings } = useAppSettings();
+  // dialog
+  const dialog = useDialog();
   // notify
-  const setNotification = useNotificationHook();
+  const setNotification = useNotification();
 
   // use effect for getting data
   React.useEffect(() => {
     // if already loaded/ email null
-    if (stateData.status === "loaded" || !email) {
+    if (loadingStatus === "loaded" || !email) {
       return;
     }
     // get user data
-    if (appData.viewPageMode === "normal") {
+    if (viewPageMode === "normal") {
       fetchServer.getUserList(email)
         .then(result => {
           if (result.length === 0) {
-            // empty array, user not created
-            setStateData(prevValue => ({
-              ...prevValue,
-              isDataAvail: false,
-              status: "loaded"
-            }));
             // update app setting
-            setAppData(prevValue => ({
+            setAppSettings(prevValue => ({
               ...prevValue,
               draftAvailable: false
             }));
           } else {
             setStateData(prevValue => ({
               ...prevValue,
-              data: {...result[0]},
-              isDataAvail: true,
-              status: "loaded"
+              ...result[0],
             }));
             // update app setting
-            setAppData(prevValue => ({
+            setAppSettings(prevValue => ({
               ...prevValue,
               draftAvailable: true
             }));
           }
         })
+        .then(() => setLoadingStatus("loaded"))
         .catch(error => {
           setNotification({show: true, isError: true, msg:"Error getting data, try again", errorObj: error});
+          setLoadingStatus("error");
         });
     } else {
-      fetchServer.getListById(appData.linkedItemId)
+      fetchServer.getListById(linkedItemId)
         .then(result => {
-          setStateData(prevValue => ({
-            ...prevValue,
-            data: {...result},
-            isDataAvail: true,
-            status: "loaded"
-          }));
+          setStateData({...result});
+          setLoadingStatus("loaded");
         })
         .catch(error => {
           setNotification({show: true, isError: true, msg:"Error getting data, try again", errorObj: error});
+          setLoadingStatus("error");
         });
     }
-  }, [stateData.status, appData.viewPageMode, email]);
+  }, [loadingStatus, viewPageMode, email]);
 
   // effect to handle unmounting, run only once
   React.useEffect(() => {
     // unmounting func
     return () => {
       // if page mode is linked, set to nomal when unmounting
-      if (appData.viewPageMode === "linked") {
-        setAppData(prevValue => ({
+      if (viewPageMode === "linked") {
+        setAppSettings(prevValue => ({
           ...prevValue,
           viewPageMode: "normal"
         }));
@@ -107,74 +95,66 @@ const ViewPage = ({appData, setAppData}: IViewPageProps):JSX.Element => {
   }, []);
   // handlers
   const handleDeleteClick = (): void => {
-    // delete entry
-    fetchServer.deleteEntry(stateData.data.Id)
-      .then(res => {
-        if (res) {
-          // update state if delete successful
-          setStateData({
-            data: {},
-            isDataAvail: false,
-            status: "idle"
-          });
-          setNotification({show: true, isError: false, msg:"Draft deleted"});
-        }
-      })
-      .catch(error => {
-        setNotification({show: true, isError: true, msg:"Error deleting item", errorObj: error});
-      });
+
+    if (stateData.Id) {
+      // delete entry
+      fetchServer.deleteEntry(stateData.Id)
+        .then(res => {
+          if (res) {
+            // update state if delete successful
+            setStateData({});
+            setLoadingStatus("idle");
+            setNotification({show: true, isError: false, msg: "Draft deleted"});
+          }
+        })
+        .catch(error => {
+          setNotification({show: true, isError: true, msg:"Error deleting item", errorObj: error});
+        });
+    }
   };
 
   return (
     <Stack tokens={{childrenGap: 10}}>
       {
-        stateData.status === "idle" &&
+        loadingStatus === "idle" &&
         <div>
           Loading data ...
         </div>
       }
       {
-        stateData.status === "loaded" && !stateData.isDataAvail &&
+        (loadingStatus === "loaded" && stateData.Id === undefined) &&
         <div>
           No data... Create a new personal development plan
         </div>
       }
       {
-        stateData.status === "loaded" && stateData.isDataAvail &&
+        (loadingStatus === "loaded" && stateData.Id !== undefined) &&
         <>
           <YearView
-            viewData={stateData.data}
-            isDataAvail={stateData.isDataAvail}
+            viewData={stateData}
           />
           <BioView
-            viewData={stateData.data}
-            isDataAvail={stateData.isDataAvail}
+            viewData={stateData}
           />
           <TrainingView
-            viewData={stateData.data}
-            appData={appData}
-            isDataAvail={stateData.isDataAvail}
+            viewData={stateData}
             setViewStateData={setStateData}
           />
           {
-            appData.viewPageMode === "normal" &&
+            viewPageMode === "normal" &&
             <PrimaryButton
               text={"Delete Current Plan"}
               onClick={() => {
-                setDialogProps({
+                dialog({
                   show: true,
-                  title: "Delete?",
-                  subtitle: "This cannot be undone",
-                  callback: handleDeleteClick,
-                  dtype: "close"
+                  msg: "Delete Current plan?",
+                  onAccept: handleDeleteClick,
+                  type: "normal",
+                  buttonText: "Delete"
                 });
               }}
             />
           }
-          <DialogOption
-            {...dialogProps}
-            setDialogProps={setDialogProps}
-          />
         </>
       }
     </Stack>

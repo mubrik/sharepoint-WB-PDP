@@ -11,8 +11,8 @@ import {ITrainingControlProps} from "./propTypes";
 // import ValidationDisplay from "../utils/ValidationDisplay";
 // data
 import {initialTrainingFormData} from "../dataTypes";
-// notify
-import useNotificationHook from "../notification/hook";
+// notification
+import { useNotification } from "../notification/NotificationBarContext";
 
 // styles
 const gridCLasses = mergeStyleSets({
@@ -44,7 +44,7 @@ const TrainingForm = ({trainData, setTrainData, validState, setValidState}: ITra
   const [itemsArray, setItemsArray] = React.useState<string[]>([]);
   const [stateData, setStateData] = React.useState(initialTrainingFormData);
   // notify
-  const notify = useNotificationHook();
+  const notify = useNotification();
 
   // effect for validation
   React.useEffect(() => {
