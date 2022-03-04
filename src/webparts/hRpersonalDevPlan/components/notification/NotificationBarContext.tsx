@@ -1,8 +1,14 @@
 import * as React from "react";
-import {MessageBar,
-  MessageBarType, Stack} from "office-ui-fabric-react";
+// ui fabric
+import {
+  MessageBar,
+  MessageBarType, Stack
+} from "office-ui-fabric-react";
+// custom util
+import createContext from "../utils/createContext";
 
 type NotificationType = "error" | "info" | "success" | "warning";
+
 interface INotificationBarProps {
   children: React.ReactNode;
 }
@@ -13,31 +19,33 @@ export interface INotificationBarState {
   isError?: boolean;
   errorObj?: Error|null;
   type?: NotificationType;
+  logError?: boolean;
 }
 
 const initialState = {
   show: false,
   msg: "",
   isError: false,
-  errorObj: null
+  errorObj: null,
+  logError: false
 };
 
-export const NotificationContext =
-  React.createContext<null|React.Dispatch<React.SetStateAction<INotificationBarState>>>(null);
+const [useNotification, NotificationProvider] =
+  createContext<React.Dispatch<React.SetStateAction<INotificationBarState>>>();
 
-const NotificationBar = ({children}:INotificationBarProps):JSX.Element => {
+const NotificationContext = ({children}:INotificationBarProps) :JSX.Element => {
   // state
   const [notifyState, setNotifyState] = React.useState<INotificationBarState>(initialState);
 
-  // effect to log error
+  // effect to log error to a server or db or something
   React.useEffect(() => {
-    if (notifyState.isError) {
+    if (notifyState.logError) {
       console.log("error logged", notifyState.errorObj);
     }
   }, [notifyState.isError]);
 
   return(
-    <NotificationContext.Provider value={setNotifyState}>
+    <NotificationProvider value={setNotifyState}>
       {
         notifyState.show &&
         <Stack>
@@ -57,8 +65,9 @@ const NotificationBar = ({children}:INotificationBarProps):JSX.Element => {
         </Stack>
       }
       {children}
-    </NotificationContext.Provider>
+    </NotificationProvider>
   );
 };
 
-export default NotificationBar;
+export { useNotification };
+export default NotificationContext;

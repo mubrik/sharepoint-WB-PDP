@@ -13,8 +13,7 @@ import ResponsiveTextFieldRO from "../utils/ResponsiveTextROField";
 const stackStyles: IStackStyles = {
   root: {
     boxShadow: "0px 1px 3px 0px rgba(50, 50, 50, 0.71)",
-    borderRadius: "10px",
-    border: "1px solid #005aff36"
+    borderRadius: "5px",
   }
 };
 
